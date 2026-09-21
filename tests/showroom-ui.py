@@ -8,6 +8,7 @@ checks=[]
 def check(name, condition=True):
     assert condition, name
     checks.append(name)
+    print('PASS '+name,flush=True)
 with socket.socket() as sock:
     sock.bind(('127.0.0.1',0)); port=sock.getsockname()[1]
 origin=f'http://127.0.0.1:{port}'
@@ -28,7 +29,7 @@ with tempfile.TemporaryDirectory(prefix='showroom-ci-') as tmp:
             ctx=browser.new_context(viewport={'width':1672,'height':941},reduced_motion='reduce')
             page=ctx.new_page(); errors=[]
             page.on('pageerror',lambda e:errors.append(str(e)))
-            page.goto(origin,wait_until='networkidle')
+            page.goto(origin,wait_until='domcontentloaded')
             expect(page.locator('#login')).to_be_visible(); check('private login shown')
             page.screenshot(path=str(OUT/'showroom-login.png'))
             page.locator('#password').fill(env['OWNER_PASSWORD'])
@@ -40,7 +41,6 @@ with tempfile.TemporaryDirectory(prefix='showroom-ci-') as tmp:
             check('nine working navigation entries',page.locator('#navigation .nav-item').count()==9)
             check('no desktop horizontal overflow',page.evaluate('document.documentElement.scrollWidth <= innerWidth'))
             page.screenshot(path=str(OUT/'showroom-desktop.png'))
-            # Real API login and original worker, not mocked responses.
             page.locator('#pause-all').click()
             page.wait_for_function("[...document.querySelectorAll('#team-cards .team-task')].some(e=>e.textContent.includes('review'))",timeout=25000)
             check('practice shift ran actual backend tasks')
