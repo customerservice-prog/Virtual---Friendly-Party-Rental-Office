@@ -16,13 +16,60 @@ const badge=t=>`<span class="badge ${t.status==='blocked'?'red':t.status==='wait
 const sourceBadge=t=>`<span class="badge ${t.source==='practice'?'warm':''}">${t.source==='practice'?'Fictional practice':t.source==='manual'?'Owner import':t.source==='gmail'?'Gmail read-only':'Owner task'}</span>`;
 const fmtTime=time=>new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}).format(new Date(time));
 const fmtDate=time=>new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}).format(new Date(time));
-let state=null,view='office',scene=null,stream=null,connected=false,loading=false,selectedRole=null,selectedTask=null,tab='work',dirty=false,toastTimer;
+let state=null,view='office',scene=null,stream=null,connected=false,loading=false,selectedRole=null,selectedTask=null,tab='work',dirty=false,toastTimer,reconnectTimer,retryDelay=1000,lastStateAt=0;
 const pending=new Set();
 function toast(message){const el=$('#toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,6500);}
-function network(ok){connected=ok;$('#network').classList.toggle('offline',!ok);$('#network').innerHTML=`<i></i>${ok?'Office connected':'Connection lost'}`;$('#connection-error').hidden=ok;if(!ok)$('#connection-error').textContent='The office connection was interrupted. Displayed work may be stale; new actions are disabled until it reconnects.';$('#pause-all').disabled=!ok;}
-function signedOut(){connected=false;stream?.close();stream=null;$('#shell').hidden=true;$('#login').hidden=false;$('#inspector').close();state=null;setTimeout(()=>$('#password').focus(),50);}
-async function refresh(){if(loading)return;loading=true;try{const r=await fetch('/api/state',{cache:'no-store'});if(r.status===401){signedOut();return;}if(!r.ok)throw new Error('Office state unavailable');state=await r.json();network(true);$('#login').hidden=true;$('#shell').hidden=false;render();if(!scene){scene=new OfficeScene($('#office-canvas'),$('#desk-labels'),openAgent,()=>{$('#scene-fallback').hidden=false;$('#desk-labels').hidden=true;});scene.update(state);}if(!stream){stream=new EventSource('/api/events');stream.addEventListener('refresh',()=>refresh());stream.onerror=()=>network(false);} }catch{network(false);if(!state){$('#login').hidden=false;$('#login-error').textContent='The office server could not be reached. Check that the app is running, then reload.';}}finally{loading=false;}}
-async function post(path,data={}){if(!connected || !state)throw new Error('Reconnect to the office before taking action.');if(pending.has(path))throw new Error('That request is already in progress.');pending.add(path);try{const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json','x-csrf-token':state.csrf},body:JSON.stringify(data)});const value=await r.json();if(r.status===401)signedOut();if(!r.ok)throw new Error(value.error||'Request failed.');await refresh();return value;}finally{pending.delete(path);}}
+function network(ok){
+ connected=ok;
+ const badge=$('#network'),error=$('#connection-error');
+ badge.classList.toggle('offline',!ok);
+ badge.innerHTML=`<i></i>${ok?'Office live':'Reconnecting…'}`;
+ error.hidden=ok;
+ if(!ok)error.textContent='Reconnecting automatically. Your saved work is still here.';
+ $('#pause-all').disabled=false;
+}
+function signedOut(){connected=false;clearTimeout(reconnectTimer);stream?.close();stream=null;$('#shell').hidden=true;$('#login').hidden=false;$('#inspector').close();state=null;setTimeout(()=>$('#password').focus(),50);}
+function scheduleReconnect(){
+ if(reconnectTimer||!state)return;
+ network(false);
+ reconnectTimer=setTimeout(async()=>{reconnectTimer=null;stream?.close();stream=null;await refresh(true);retryDelay=Math.min(15000,Math.round(retryDelay*1.7));},retryDelay);
+}
+function openStream(){
+ if(stream||!state)return;
+ const s=new EventSource('/api/events');stream=s;
+ s.addEventListener('refresh',()=>{network(true);void refresh(true);});
+ s.addEventListener('heartbeat',()=>network(true));
+ s.onopen=()=>{retryDelay=1000;network(true);};
+ s.onerror=()=>{if(stream===s){s.close();stream=null;}scheduleReconnect();};
+}
+async function refresh(force=false){
+ if(loading&&!force)return false;
+ loading=true;
+ try{
+  const r=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(12000)});
+  if(r.status===401){signedOut();return false;}
+  if(!r.ok)throw new Error('Office state unavailable');
+  state=await r.json();lastStateAt=Date.now();clearTimeout(reconnectTimer);reconnectTimer=null;retryDelay=1000;network(true);$('#login').hidden=true;$('#shell').hidden=false;render();
+  if(!scene){scene=new OfficeScene($('#office-canvas'),$('#desk-labels'),openAgent,()=>{$('#scene-fallback').hidden=false;$('#desk-labels').hidden=true;});scene.update(state);}
+  openStream();return true;
+ }catch{
+  if(state)scheduleReconnect();
+  else{$('#login').hidden=false;$('#login-error').textContent='Trying to reconnect to your office automatically…';}
+  return false;
+ }finally{loading=false;}
+}
+async function ensureConnection(){if(connected&&state&&Date.now()-lastStateAt<30000)return true;return await refresh(true);}
+async function post(path,data={}){
+ if(!state||!(await ensureConnection()))throw new Error('The office is reconnecting. Try again in a moment.');
+ if(pending.has(path))throw new Error('That request is already in progress.');
+ pending.add(path);
+ try{
+  const r=await fetch(path,{method:'POST',headers:{'content-type':'application/json','x-csrf-token':state.csrf},body:JSON.stringify(data),signal:AbortSignal.timeout(30000)});
+  const value=await r.json();if(r.status===401){signedOut();throw new Error('Please sign in again.');}
+  if(!r.ok)throw new Error(value.error||'Request failed.');
+  await refresh(true);return value;
+ }finally{pending.delete(path);}
+}
 const safe=fn=>async(...args)=>{try{await fn(...args);}catch(error){toast(error.message);}};
 function agentStatus(a){const tasks=state.tasks.filter(t=>t.role===a.id);if(state.settings.paused||a.paused)return'Paused';if(tasks.some(t=>t.status==='running'))return'Working';if(tasks.some(t=>t.status==='waiting_approval'))return'Waiting for review';if(tasks.some(t=>t.status==='blocked'))return'Needs your help';if(tasks.some(t=>t.status==='queued'))return'Queued';return'Available';}
 function currentTask(role){const priority={running:0,waiting_approval:1,blocked:2,queued:3,rejected:4,approved:5,cancelled:6};return [...state.tasks.filter(t=>t.role===role)].sort((a,b)=>(priority[a.status]-priority[b.status])||b.created.localeCompare(a.created))[0];}
@@ -114,7 +161,9 @@ document.addEventListener('change',safe(async e=>{
  if(e.target.id==='operating-mode'){try{await post('/api/settings',{mode:e.target.value});}catch(error){renderConnections();throw error;}}
  if(e.target.id==='use-ai'){const enabled=e.target.checked;if(enabled&&!confirm('Allow selected task content, source evidence and approved procedures to be sent to your configured OpenAI model for supervised drafts? This may incur API charges.')){e.target.checked=false;return;}try{await post('/api/settings',{useAI:enabled,consent:enabled});}catch(error){renderConnections();throw error;}}
 }));
-setInterval(()=>{if(!document.hidden)refresh();},20000);
-window.addEventListener('online',()=>refresh());
+setInterval(()=>{if(!document.hidden)void refresh(true);},15000);
+window.addEventListener('online',()=>void refresh(true));
+window.addEventListener('focus',()=>{if(state&&(!connected||Date.now()-lastStateAt>30000))void refresh(true);});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state&&(!connected||Date.now()-lastStateAt>30000))void refresh(true);});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 refresh();
