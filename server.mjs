@@ -231,7 +231,7 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
       const result={brain:false,transcriber:false,orders:false,mail:false};
       try{
         if(process.env.AI_BRAIN_URL&&process.env.AI_BRAIN_MODEL){
-          const r=await fetch(new URL('/api/generate',process.env.AI_BRAIN_URL),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:process.env.AI_BRAIN_MODEL,prompt:'Reply only with READY',stream:false,keep_alive:-1,options:{temperature:0,num_predict:5}}),signal:AbortSignal.timeout(120000)});
+          const r=await fetch(new URL('/api/generate',process.env.AI_BRAIN_URL),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:process.env.AI_BRAIN_MODEL,prompt:'Reply only with READY',stream:false,keep_alive:-1,options:{temperature:0,num_predict:5}}),signal:AbortSignal.timeout(360000)});
           const d=await r.json().catch(()=>({}));result.brain=r.ok&&/ready/i.test(String(d.response||''));if(result.brain)app.store.set('verified:ai',new Date().toISOString());
         }
       }catch{}
