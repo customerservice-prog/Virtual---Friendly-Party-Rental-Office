@@ -38,11 +38,13 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
   let timer;
   const passwordSalt=randomBytes(16),expected=env.OWNER_PASSWORD?scryptSync(env.OWNER_PASSWORD,passwordSalt,32):null;
   const anonymousCsrf=randomBytes(24).toString('hex');
-  function session(req) {
+  function session(req,{touch=false}={}) {
     if(!expected) return {hash:'local',csrf:anonymousCsrf,expires:Date.now()+8*3600000};
     const token=(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith('office_session='))?.slice(15);
     if(!token || !/^[a-f0-9]{64}$/.test(token)) return null;
-    return store.db.prepare('SELECT * FROM sessions WHERE hash=? AND expires>?').get(hash(token),Date.now())||null;
+    const tokenHash=hash(token),row=store.db.prepare('SELECT * FROM sessions WHERE hash=? AND expires>?').get(tokenHash,Date.now())||null;
+    if(row&&touch){const expires=Date.now()+8*3600000;store.db.prepare('UPDATE sessions SET expires=? WHERE hash=?').run(expires,tokenHash);row.expires=expires;}
+    return row;
   }
   function broadcast() {
     if(timer) return;
@@ -98,7 +100,7 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
         output(res,200,await apprenticeship.phoneEventWebhook(raw,req.headers,value));return;
       }
       if(path.startsWith('/api/')) {
-        const auth=session(req); if(!auth) throw new OfficeError('Sign in to your office.',401);
+        const auth=session(req,{touch:true}); if(!auth) throw new OfficeError('Sign in to your office.',401);
         if(req.method==='POST') {
           checkOrigin(req);
           if(req.headers['x-csrf-token']!==auth.csrf) throw new OfficeError('Session verification failed. Reload and try again.',403);
@@ -113,7 +115,7 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
           res.writeHead(200,{'content-type':'text/event-stream','cache-control':'no-store','connection':'keep-alive','x-accel-buffering':'no'});
           res.write('event: refresh\ndata: {}\n\n');
           const stream={res,hash:auth.hash};streams.add(stream);
-          const heartbeat=setInterval(()=>{if(!session(req)){res.end();return;}res.write(': heartbeat\n\n');},15000);
+          const heartbeat=setInterval(()=>{if(!session(req,{touch:true})){res.end();return;}res.write('event: heartbeat\ndata: {}\n\n');},15000);
           req.on('close',()=>{clearInterval(heartbeat);streams.delete(stream);});return;
         }
         if(path==='/api/export' && req.method==='GET') {
