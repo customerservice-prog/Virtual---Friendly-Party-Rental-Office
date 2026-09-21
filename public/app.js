@@ -27,6 +27,7 @@ function network(ok){
  error.hidden=ok;
  if(!ok)error.textContent='Reconnecting automatically. Your saved work is still here.';
  $('#pause-all').disabled=false;
+ window.dispatchEvent(new CustomEvent('office-network',{detail:{connected:ok}}));
 }
 function signedOut(){connected=false;clearTimeout(reconnectTimer);stream?.close();stream=null;$('#shell').hidden=true;$('#login').hidden=false;$('#inspector').close();state=null;setTimeout(()=>$('#password').focus(),50);}
 function scheduleReconnect(){
@@ -163,6 +164,7 @@ document.addEventListener('change',safe(async e=>{
 }));
 setInterval(()=>{if(!document.hidden)void refresh(true);},15000);
 window.addEventListener('online',()=>void refresh(true));
+window.addEventListener('offline',()=>{network(false);scheduleReconnect();});
 window.addEventListener('focus',()=>{if(state&&(!connected||Date.now()-lastStateAt>30000))void refresh(true);});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state&&(!connected||Date.now()-lastStateAt>30000))void refresh(true);});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
