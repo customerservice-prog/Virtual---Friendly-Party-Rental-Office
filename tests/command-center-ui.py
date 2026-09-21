@@ -35,6 +35,13 @@ with tempfile.TemporaryDirectory(prefix='command-ui-') as tmp:
                 check('technical duties are hidden behind settings',not page.locator('#cmd-settings-dialog').evaluate('e=>e.open'))
                 check('owner decision list is hidden until Needs me is opened',not page.locator('#cmd-attention-dialog').evaluate('e=>e.open'))
 
+                page.locator('#cmd-message').fill('This text must survive a connection drop.')
+                ctx.set_offline(True);page.wait_for_timeout(700)
+                check('reconnect state is simple and message box stays usable',page.locator('#cmd-live').inner_text().find('RECONNECTING')>=0 and not page.locator('#cmd-send').is_disabled())
+                ctx.set_offline(False);page.evaluate("window.dispatchEvent(new Event('online'))")
+                expect(page.locator('#cmd-live')).to_contain_text('LIVE',timeout=15000)
+                check('office reconnects automatically without reload')
+                check('typed owner message survives reconnect',page.locator('#cmd-message').input_value()=='This text must survive a connection drop.')
                 page.locator('#cmd-message').fill('Team, what needs my attention?');page.locator('#cmd-send').click()
                 page.wait_for_timeout(300)
                 submit=page.locator('#cmd-submit-state').inner_text()
