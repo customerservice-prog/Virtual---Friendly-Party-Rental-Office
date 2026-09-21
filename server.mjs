@@ -85,6 +85,10 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
         const {value,raw}=await body(req,90000,true);
         output(res,200,await apprenticeship.webhook(raw,req.headers,value));return;
       }
+      if(path==='/api/apprentice/phone-event-hook' && req.method==='POST') {
+        const {value,raw}=await body(req,90000,true);
+        output(res,200,await apprenticeship.phoneEventWebhook(raw,req.headers,value));return;
+      }
       if(path.startsWith('/api/')) {
         const auth=session(req); if(!auth) throw new OfficeError('Sign in to your office.',401);
         if(req.method==='POST') {
