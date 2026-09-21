@@ -66,6 +66,7 @@ import { caseView,lessonsView } from './apprentice-case.js';
    if(action==='sync'){await post('/api/apprentice/sync');ap.dirty=false;paint();toast('Mailbox synchronization cycle completed. Check coverage and pending messages.');}
    if(action==='more'){const r=await get('/api/apprentice/cases?offset='+ap.more);ap.cases.push(...r.cases);ap.more=r.nextOffset;paint();}
    if(action==='erase'){if(!confirm('Erase and exclude this conversation and revoke its linked lessons in this app? This cannot be undone here.'))return;await post('/api/apprentice/cases/'+ap.caseId+'/delete',{revision:ap.detail.revision,confirm:true});ap.dirty=false;await open('cases');}
+   if(action==='send-email'){if(!confirm('Send this exact owner-approved reply through customerservice@friendlypartyrental.com?'))return;const r=await post('/api/apprentice/cases/'+ap.caseId+'/send-email',{revision:ap.detail.revision,confirm:true});ap.dirty=false;await open('cases',ap.caseId);toast('Approved email sent to '+r.to+'.');}
    if(action==='transcribe'){
     const form=$('#ap-phone-form'),payload=callPayload(form),file=$('#ap-audio-file').files[0];if(!file||file.size>8*1024*1024)throw new Error('Choose an audio file of at most 8 MB.');
     payload.providerConsent=form.elements.providerConsent.checked;payload.sensitiveContentRemoved=form.elements.sensitiveContentRemoved.checked;
