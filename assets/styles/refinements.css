@@ -1,0 +1,30 @@
+/* Showroom polish: preserve desktop composition, expose every room on phones. */
+#navigation .nav-item:focus-visible,.room-view:focus-visible,.team-card:focus-visible{outline:2px solid #e5c18a;outline-offset:-3px}
+.room-view,.team-card{-webkit-tap-highlight-color:transparent}
+@media(max-width:760px){
+ .scene-area{height:calc((100vw * .54726735598) + 96px)}
+ .stage-viewport{inset:0 0 96px}
+ .room-views{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));position:absolute;inset:auto 10px 43px;width:auto;height:46px;padding:4px;gap:4px;border-radius:8px;overflow:hidden}
+ .room-views-heading,.room-views>p,.room-views .thumbnail,.room-views .activity-toggle{display:none}
+ .room-views .room-view{min-height:36px;min-width:0;flex:none;margin:0;border-radius:5px;display:flex;align-items:center;justify-content:center}
+ .room-views .room-view>span:last-child{font-size:8px;line-height:1.25;text-align:center;padding:3px;white-space:normal}
+ .room-view>span:last-child b{display:none}
+ .mobile-team{display:grid;grid-template-columns:1fr;overflow:visible;gap:8px;scroll-snap-type:none}
+ .mobile-team .team-card{width:100%!important;min-width:0;padding:10px 12px}
+ .mobile-team .team-head{gap:9px}.mobile-team .team-task{min-height:0;margin-top:5px}
+ #navigation .nav-item{min-width:74px;scroll-margin-inline:12px}
+ #office-canvas{bottom:96px;height:calc(100% - 96px)}.desk-labels{bottom:96px}
+ body[data-scene-mode="spatial"] .room-views{display:none}
+ body[data-scene-mode="spatial"] #office-canvas{height:calc(100% - 40px)}
+ body[data-scene-mode="spatial"] .desk-labels{bottom:40px}
+ .rail{height:calc(64px + env(safe-area-inset-bottom));box-sizing:border-box}
+ .main-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+ .command-dock,body.command-open .command-dock{bottom:calc(74px + env(safe-area-inset-bottom))}
+ .toast{bottom:calc(83px + env(safe-area-inset-bottom))}
+}
+@media(min-width:541px) and (max-width:760px){
+ .mobile-team{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .mobile-team .team-role{font-size:9px}.mobile-team .team-task{font-size:9px}
+ .mobile-team .team-head .avatar{width:25px;height:25px;flex-shrink:0}
+}
+@media(prefers-reduced-motion:reduce){.room-stage,.team-card,.room-view{transition:none!important}}

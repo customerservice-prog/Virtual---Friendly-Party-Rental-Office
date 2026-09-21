@@ -75,12 +75,9 @@
   clock();setInterval(clock,30000);
   function fitRoom(){
     const viewport=$('.stage-viewport'),stage=$('#room-stage');if(!viewport||!stage||root.dataset.sceneMode!=='showroom')return;
-    const r=viewport.getBoundingClientRect();if(!r.width||!r.height)return;
-    const s=Math.max(r.width/1354,r.height/741),w=1354*s,h=741*s;
-    stage.style.width=w+'px';stage.style.height=h+'px';
-    const targets={overview:[.5,.5,1],door:[.9,.33,1.85],concessions:[.71,.30,2.15],storage:[.34,.16,1.95]};
-    const [x,y,z]=targets[hq.room]||targets.overview;
-    stage.style.transform=`translate(-50%,-50%) translate(${-(x-.5)*w*z}px,${-(y-.5)*h*z}px) scale(${z})`;
+    const r=viewport.getBoundingClientRect(),layout=showroomLayout(r.width,r.height,hq.room);if(!layout)return;
+    stage.style.width=layout.width+'px';stage.style.height=layout.height+'px';
+    stage.style.transform=`translate(-50%,-50%) translate(${layout.dx}px,${layout.dy}px) scale(${layout.zoom})`;
     stage.dataset.view=hq.room;
     // A zoomed scenic crop does not need huge interactive staff labels over it.
     $('#team-cards').style.visibility=hq.room==='overview'?'visible':'hidden';

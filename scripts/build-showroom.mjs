@@ -13,14 +13,15 @@ if(art.length!==52528||createHash('sha256').update(art).digest('hex')!=='7411791
 writeFileSync(resolve(root,'public/showroom.avif'),art);
 const styles=Array.from({length:5},(_,i)=>read(`assets/styles/part-${String(i).padStart(2,'0')}.css`)).join('');
 if(createHash('sha256').update(styles).digest('hex')!=='ace83de5ee535bca8b1a2361b1ba58e7011551ab53dd9726df1d6fe12a0e6e88')throw new Error('Showroom stylesheet integrity check failed.');
-write('public/style.css',styles);
+write('public/style.css',styles+'\n'+read('assets/styles/refinements.css'));
 const marker='\n// FRIENDLY_SHOWROOM_EXTENSION_V2\n';
 let app=read('public/app.js').split(marker)[0];
 const init='if(!scene){scene=new OfficeScene';
 const lazy="if(!scene && document.body.dataset.sceneMode==='spatial'){scene=new OfficeScene";
 if(app.includes(init))app=app.replace(init,lazy);
 else if(!app.includes(lazy))throw new Error('Unexpected office app source; refusing to apply a blind frontend patch.');
-write('public/app.js',app+marker+read('public/hq.js'));
+const layout=read('public/showroom-layout.mjs').replace('export function showroomLayout','function showroomLayout');
+write('public/app.js',app+marker+layout+'\n'+read('public/hq.js'));
 let server=read('server.mjs');
 if(!server.includes("'/showroom.avif':'showroom.avif'")){
   const token="'/icon.svg':'icon.svg'";
