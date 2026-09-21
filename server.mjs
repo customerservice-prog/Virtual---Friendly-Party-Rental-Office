@@ -23,6 +23,7 @@ export function validateConfig(env) {
 export function createOffice({env=process.env,store=new Store(resolve(env.DATA_DIR||'data','office.sqlite')),integrations,worker=true}={}) {
   validateConfig(env);
   integrations ||= new Integrations(store,env);
+  if(env.ENABLE_BUILTIN_AI==='true' && integrations.status().ai.provider==='Friendly private brain' && !store.get('builtin-ai-initialized')) { const settings=store.get('settings'); store.set('settings',{...settings,useAI:true}); store.set('builtin-ai-initialized',{at:new Date().toISOString(),model:integrations.status().ai.model}); }
   const engine=new Engine(store,integrations),streams=new Set(),attempts=new Map(),requests=new Map(),imports=new Set();
   const apprenticeship=new Apprenticeship(store,integrations,engine);
   installCommandCenter(apprenticeship);
