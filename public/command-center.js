@@ -239,6 +239,7 @@
     if(!fresh&&!cmd.busy&&!status.textContent)status.textContent='Reconnecting automatically — you can still type and press Send.';
     if(fresh&&status.textContent.startsWith('Reconnecting automatically'))status.textContent='';
   }
+  window.addEventListener('office-network',freshness);
 
   const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   let voiceTimer;
