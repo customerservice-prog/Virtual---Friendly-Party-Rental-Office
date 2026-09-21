@@ -41,7 +41,10 @@ body.command-focus .vo-room{min-height:100dvh;border:0;border-radius:0}
 body.command-focus .vo-topbar{position:absolute;z-index:20;left:12px;right:12px;top:12px;background:#11191ed9}
 
 @media(min-width:761px){
-  body[data-hq-view="office"] .command-preview{position:absolute;left:22px;right:178px;bottom:118px;margin:0;max-height:70px}
+  body[data-hq-view="office"] .command-preview{position:absolute;left:auto;right:182px;top:82px;bottom:auto;width:min(320px,34vw);margin:0;max-height:64px;z-index:4}
+  body[data-hq-view="office"] .command-preview .vo-preview-open{padding:9px 10px}
+  body[data-hq-view="office"] .command-preview .vo-preview-open small{display:none}
+  body[data-hq-view="office"] .command-preview .vo-preview-needs{right:92px}
   body.watch-mode .command-preview{display:none}
 }
 @media(max-width:1180px){
