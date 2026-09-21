@@ -1,0 +1,20 @@
+name: Apprenticeship verification
+on:
+  push:
+    branches: [apprenticeship]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: git archive --format=zip --output=office-source.zip HEAD
+      - uses: actions/upload-artifact@v4
+        with:
+          name: office-tracked-source
+          path: office-source.zip
+          retention-days: 1
