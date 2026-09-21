@@ -228,7 +228,7 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
   app.server.listen(port,host,()=>{
     console.log(`Friendly Office listening on ${host}:${port}. Supervised shadow supported; outbound business writes remain permission-gated.`);
     if(process.env.VERIFY_PRIVATE_SERVICES==='true') void (async()=>{
-      const result={brain:false,transcriber:false};
+      const result={brain:false,transcriber:false,orders:false,mail:false};
       try{
         if(process.env.AI_BRAIN_URL&&process.env.AI_BRAIN_MODEL){
           const r=await fetch(new URL('/api/generate',process.env.AI_BRAIN_URL),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:process.env.AI_BRAIN_MODEL,prompt:'Reply only with READY',stream:false,keep_alive:-1,options:{temperature:0,num_predict:5}}),signal:AbortSignal.timeout(120000)});
@@ -238,6 +238,8 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
       try{
         if(process.env.LOCAL_TRANSCRIBE_URL){const r=await fetch(new URL('/docs',process.env.LOCAL_TRANSCRIBE_URL),{signal:AbortSignal.timeout(30000)});result.transcriber=r.ok;if(r.ok)app.store.set('verified:transcriber',new Date().toISOString());}
       }catch{}
+      try{if(process.env.FPR_READONLY_URL){const data=await app.integrations.orderSnapshot(AbortSignal.timeout(30000));result.orders=Array.isArray(data.orders);}}catch{}
+      try{if(process.env.MAIL_RELAY_URL){const data=await app.integrations.mailRelay(AbortSignal.timeout(30000));result.mail=Array.isArray(data.messages);}}catch{}
       console.log('FRIENDLY_PRIVATE_SERVICES '+JSON.stringify(result));
     })();
   });
