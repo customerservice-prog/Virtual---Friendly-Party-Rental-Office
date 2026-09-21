@@ -60,3 +60,10 @@ body.watch-mode .command-dock{left:18px;right:18px}
  body.watch-mode .scene-top{display:none}
 }
 @media(prefers-reduced-motion:reduce){.room-stage,.team-card,.button{transition:none!important}}
+/* Keep the complete reference composition visible on a phone's normal overview. */
+@media(max-width:760px){
+ body:not(.watch-mode)[data-scene-mode="showroom"] .scene-area{height:calc((100vw * .54726735598) + 57px)}
+ body:not(.watch-mode) .command-dock{bottom:calc(74px + env(safe-area-inset-bottom))}
+ body:not(.watch-mode) .toast{bottom:calc(83px + env(safe-area-inset-bottom))}
+}
+.room-view:focus-visible,.team-card:focus-visible,#navigation .nav-item:focus-visible{outline:2px solid #e5c18a;outline-offset:-3px}
