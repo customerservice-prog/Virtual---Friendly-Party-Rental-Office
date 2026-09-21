@@ -65,6 +65,7 @@ import { caseView,lessonsView } from './apprentice-case.js';
    if(action==='reload'){if(ap.dirty&&!confirm('Discard unsaved training edits and refresh?'))return;ap.dirty=false;await load(true);}
    if(action==='sync'){await post('/api/apprentice/sync');ap.dirty=false;paint();toast('Mailbox synchronization cycle completed. Check coverage and pending messages.');}
    if(action==='more'){const r=await get('/api/apprentice/cases?offset='+ap.more);ap.cases.push(...r.cases);ap.more=r.nextOffset;paint();}
+   if(action==='phone-settings'){const d=$('#ap-phone-settings-dialog');if(d&&!d.open)d.showModal();}
    if(action==='erase'){if(!confirm('Erase and exclude this conversation and revoke its linked lessons in this app? This cannot be undone here.'))return;await post('/api/apprentice/cases/'+ap.caseId+'/delete',{revision:ap.detail.revision,confirm:true});ap.dirty=false;await open('cases');}
    if(action==='send-email'){if(!confirm('Send this exact owner-approved reply through customerservice@friendlypartyrental.com?'))return;const r=await post('/api/apprentice/cases/'+ap.caseId+'/send-email',{revision:ap.detail.revision,confirm:true});ap.dirty=false;await open('cases',ap.caseId);toast('Approved email sent to '+r.to+'.');}
    if(action==='transcribe'){
@@ -81,6 +82,7 @@ import { caseView,lessonsView } from './apprentice-case.js';
   try{
    let caseId=ap.caseId;
    if(form.id==='ap-phone-form'){const r=await post('/api/apprentice/phone',callPayload(form));if(r.excluded)throw new Error('This source was previously excluded.');caseId=r.caseId;}
+   else if(form.id==='ap-phone-settings-form'){if(event.submitter?.value==='cancel'){form.closest('dialog')?.close();return;}const split=x=>String(x||'').split(',').map(v=>v.trim()).filter(Boolean);await post('/api/apprentice/phone-system/settings',{businessHours:v.businessHours,businessRoute:split(v.businessRoute),afterHoursRoute:split(v.afterHoursRoute),recording:form.elements.recording.checked,aiAnswering:form.elements.aiAnswering.checked,confirm:true});form.closest('dialog')?.close();ap.dirty=false;await load(true);toast('Friendly Phone routing saved. Carrier permissions remain separate.');return;}
    else if(form.id==='ap-settings-form'){
     const body={historyDays:Number(v.historyDays),retentionDays:Number(v.retentionDays)};for(const k of ['observing','includeDrafts','autoReview','phoneWebhook','consent'])body[k]=form.elements[k].checked;
     await post('/api/apprentice/settings',body);ap.dirty=false;paint();toast('Observation settings saved. Connections and office pause still apply.');return;
