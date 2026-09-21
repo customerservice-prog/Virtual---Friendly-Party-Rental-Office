@@ -30,6 +30,7 @@
             <div><p class="eyebrow">SHARED BOARD</p><h2>The team is working it out here.</h2></div>
             <div class="cmd-wall-meta"><span id="cmd-wall-time"></span><span id="cmd-wall-state"></span></div>
           </header>
+          <div id="cmd-huddle" class="cmd-huddle" aria-label="Current team huddle"></div>
           <div id="cmd-board-stream" class="cmd-board-stream"></div>
           <footer>
             <span id="cmd-totals"></span>
@@ -40,7 +41,7 @@
         <div id="cmd-people" class="cmd-people"></div>
       </section>
 
-      <section class="cmd-attention-panel">
+      <section class="cmd-attention-panel" id="cmd-attention-panel">
         <header><div><p class="eyebrow">NEEDS BRYAN</p><h2>Only decisions that need you.</h2></div><span id="cmd-attention-count"></span></header>
         <div id="cmd-attention" class="cmd-attention"></div>
       </section>
@@ -81,6 +82,22 @@
     </button>`;
   }
 
+  function renderHuddle(){
+    const x=snapshot();if(!x)return;
+    const live=x.team.filter(r=>r.status==='working'),feed=x.feed||[],latest=feed[0],caseId=latest?.caseId||live.find(r=>r.caseId)?.caseId||null;
+    const topic=latest?.title||live.find(r=>r.activity)?.activity||'No active team discussion';
+    const participants=new Set();
+    for(const n of feed.slice(0,8)){if(!caseId||n.caseId===caseId){if(color[n.author])participants.add(n.author);if(color[n.recipient])participants.add(n.recipient);}}
+    for(const r of live)participants.add(r.id);
+    const cards=x.team.map(r=>{
+      const active=participants.has(r.id)||r.status==='working';
+      return `<button class="cmd-huddle-person ${active?'active':''} ${r.status==='working'?'speaking':''}" data-cmd-person="${r.id}" style="--person:${color[r.id]}">
+        <span>${avatar(r.id)}</span><b>${r.name}</b><small>${active?(r.status==='working'?'Working this case':'In this huddle'):'Available'}</small>
+      </button>`;
+    }).join('');
+    $('#cmd-huddle').innerHTML=`<div class="cmd-huddle-team">${cards}</div><button class="cmd-huddle-topic" ${caseId?`data-ap-case="${caseId}"`:''}><span class="eyebrow">CURRENT HUDDLE</span><strong>${esc(short(topic,120))}</strong><small>${caseId?'Open the shared case to see the evidence and final decision →':'Everyone is caught up. The next real assignment will appear here.'}</small></button>`;
+  }
+
   function boardRows(all=false){
     const x=snapshot(),feed=(x?.feed||[]).filter(n=>cmd.boardFilter==='all'||n.author===cmd.boardFilter||n.recipient===cmd.boardFilter);
     const rows=(all?feed:feed.slice(0,10)).slice().reverse();
@@ -112,6 +129,7 @@
     preview.innerHTML=`<header><div><span class="eyebrow">LIVE OFFICE</span><h2>${state.settings.paused?'Office paused':'24/7 office working'}</h2></div><button class="button primary" data-cmd-open="true">Open team room ↗</button></header><div class="cmd-mini-team">${x.team.map(r=>`<button data-cmd-person="${r.id}" style="--person:${color[r.id]}"><span class="cmd-mini-avatar">${avatar(r.id)}</span><span><b>${r.name}</b><small>${esc(r.status)} · ${esc(short(r.activity,80))}</small></span><i class="cmd-dot ${r.status}"></i></button>`).join('')}</div>`;
     if(view!=='command')return;
     $('#cmd-people').innerHTML=x.team.map(teamCard).join('');
+    renderHuddle();
     $('#cmd-board-stream').innerHTML=boardRows(false);
     $('#cmd-wall-time').textContent=when(x.serverTime);
     $('#cmd-wall-state').textContent=x.feed?.length?'Recorded team conversation':'No active discussion';
@@ -120,7 +138,7 @@
     $('#cmd-mode').textContent=state.settings.mode==='practice'?'Practice workspace':state.settings.useAI?'Live shadow · Friendly private AI':'Live shadow · checklist';
     $('#cmd-shift').textContent=!state.settings.paused&&x.settings.enabled?'24/7 Office ON · turn off':'24/7 Office OFF · turn on';
     $('#cmd-shift').setAttribute('aria-pressed',String(!state.settings.paused&&x.settings.enabled));
-    renderAttention();renderDuties();freshness();
+    renderAttention();$('#cmd-attention-panel')?.toggleAttribute('hidden',!(x.attention||[]).length);renderDuties();freshness();
   }
 
   async function get(path){const r=await fetch(path,{cache:'no-store'});if(r.status===401){signedOut();throw new Error('Sign in again.');}const b=await r.json();if(!r.ok)throw new Error(b.error||'Could not load the team conversation.');return b;}
