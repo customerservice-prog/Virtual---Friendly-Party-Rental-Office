@@ -13,8 +13,8 @@ def check(name, condition=True):
 def covered(page):
     return page.evaluate('''()=>{const a=document.querySelector('#room-stage').getBoundingClientRect(),v=document.querySelector('.stage-viewport').getBoundingClientRect();return a.left<=v.left+1&&a.top<=v.top+1&&a.right>=v.right-1&&a.bottom>=v.bottom-1;}''')
 def preview(path):
-    image=Image.open(path).convert('RGB'); image.thumbnail((900,1200))
-    out=io.BytesIO(); image.save(out,format='WEBP',quality=28,method=6)
+    image=Image.open(path).convert('RGB'); image.thumbnail((760,1100))
+    out=io.BytesIO(); image.save(out,format='WEBP',quality=23,method=6)
     data=base64.b64encode(out.getvalue()).decode()
     print('VISUAL_PREVIEW_BEGIN '+path.name+' '+str(len(out.getvalue())),flush=True)
     for i in range(0,len(data),4000):print('VISUAL_DATA '+data[i:i+4000],flush=True)
@@ -76,19 +76,30 @@ with tempfile.TemporaryDirectory(prefix='layout-ci-') as tmp:
             page.locator('#logout').click()
             expect(page.locator('#login')).to_be_visible()
             check('owner session removed after logout',ctx.request.get(origin+'/api/state').status==401)
-            # Read-only graphical verification of the public hosted login page.
+            (OUT/'showroom-layout-checks.json').write_text(json.dumps({'passed':len(checks),'checks':checks,'scope':'Signed-in Chromium checks against a disposable real Node backend. No production credentials.'},indent=2))
+            print(f'{len(checks)} isolated showroom layout checks passed',flush=True)
+            for name in ['showroom-final-desktop.png','showroom-final-mobile.png']:preview(OUT/name)
+            # Read-only public hosted check, reported independently from isolated layout tests.
             live=browser.new_context(viewport={'width':1440,'height':900})
-            livepage=live.new_page()
-            livepage.goto('https://virtual-office-production-62b4.up.railway.app/',wait_until='networkidle',timeout=45000)
-            expect(livepage.locator('#login')).to_be_visible()
-            check('hosted HTTPS login renders in Chromium')
-            check('hosted public artwork responds',live.request.get('https://virtual-office-production-62b4.up.railway.app/showroom.avif').status==200)
-            check('hosted private state remains protected',live.request.get('https://virtual-office-production-62b4.up.railway.app/api/state').status==401)
-            livepage.screenshot(path=str(OUT/'showroom-hosted-login.png'))
-            live.close();browser.close()
-        (OUT/'showroom-layout-checks.json').write_text(json.dumps({'passed':len(checks),'checks':checks,'scope':'Desktop/mobile signed-in checks use disposable Node backend. Hosted browser check is public login only. No production credentials used.'},indent=2))
-        print(f'{len(checks)} showroom layout checks passed',flush=True)
-        for name in ['showroom-final-desktop.png','showroom-final-mobile.png']:preview(OUT/name)
+            livepage=live.new_page(); hosted={'scope':'Public hosted login only; no owner credentials','passed':False}
+            try:
+                response=livepage.goto('https://virtual-office-production-62b4.up.railway.app/',wait_until='domcontentloaded',timeout=25000)
+                hosted['html_status']=response.status if response else None
+                expect(livepage.locator('#login')).to_be_visible(timeout=15000)
+                hosted['login_visible']=True
+                hosted['artwork_status']=live.request.get('https://virtual-office-production-62b4.up.railway.app/showroom.avif',timeout=15000).status
+                hosted['anonymous_state_status']=live.request.get('https://virtual-office-production-62b4.up.railway.app/api/state',timeout=15000).status
+                livepage.screenshot(path=str(OUT/'showroom-hosted-login.png'))
+                hosted['passed']=hosted['html_status']==200 and hosted['artwork_status']==200 and hosted['anonymous_state_status']==401
+                assert hosted['passed'],'Hosted login verification failed'
+                print('PASS public hosted HTTPS login, illustration and private API protection',flush=True)
+            except Exception as error:
+                hosted['error_type']=type(error).__name__
+                print('HOSTED_BROWSER_CHECK did not pass: '+type(error).__name__,flush=True)
+                raise
+            finally:
+                (OUT/'showroom-hosted-checks.json').write_text(json.dumps(hosted,indent=2))
+                live.close();browser.close()
     finally:
         server.terminate()
         try:server.wait(timeout=8)
