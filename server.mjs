@@ -225,6 +225,21 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
   const app=createOffice(),port=Number(process.env.PORT)||3000;
   // Without authentication, bind only to loopback. Hosted operation requires production configuration.
   const host=process.env.OWNER_PASSWORD?'0.0.0.0':'127.0.0.1';
-  app.server.listen(port,host,()=>console.log(`Friendly Office listening on ${host}:${port}. Practice/shadow only; outbound business writes disabled.`));
+  app.server.listen(port,host,()=>{
+    console.log(`Friendly Office listening on ${host}:${port}. Supervised shadow supported; outbound business writes remain permission-gated.`);
+    if(process.env.VERIFY_PRIVATE_SERVICES==='true') void (async()=>{
+      const result={brain:false,transcriber:false};
+      try{
+        if(process.env.AI_BRAIN_URL&&process.env.AI_BRAIN_MODEL){
+          const r=await fetch(new URL('/api/generate',process.env.AI_BRAIN_URL),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:process.env.AI_BRAIN_MODEL,prompt:'Reply only with READY',stream:false,keep_alive:-1,options:{temperature:0,num_predict:5}}),signal:AbortSignal.timeout(120000)});
+          const d=await r.json().catch(()=>({}));result.brain=r.ok&&/ready/i.test(String(d.response||''));if(result.brain)app.store.set('verified:ai',new Date().toISOString());
+        }
+      }catch{}
+      try{
+        if(process.env.LOCAL_TRANSCRIBE_URL){const r=await fetch(new URL('/docs',process.env.LOCAL_TRANSCRIBE_URL),{signal:AbortSignal.timeout(30000)});result.transcriber=r.ok;if(r.ok)app.store.set('verified:transcriber',new Date().toISOString());}
+      }catch{}
+      console.log('FRIENDLY_PRIVATE_SERVICES '+JSON.stringify(result));
+    })();
+  });
   for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>app.close().then(()=>process.exit(0)));
 }
