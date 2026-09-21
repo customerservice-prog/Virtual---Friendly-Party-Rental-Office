@@ -85,7 +85,12 @@ with tempfile.TemporaryDirectory(prefix='layout-ci-') as tmp:
             try:
                 response=livepage.goto('https://virtual-office-production-62b4.up.railway.app/',wait_until='domcontentloaded',timeout=25000)
                 hosted['html_status']=response.status if response else None
-                livepage.wait_for_function("document.querySelector('#login:not([hidden])') || document.querySelector('#shell:not([hidden])')",timeout=15000)
+                ready=False
+                for _ in range(60):
+                    if livepage.locator('#login').is_visible() or livepage.locator('#shell').is_visible():
+                        ready=True;break
+                    livepage.wait_for_timeout(250)
+                assert ready,'Hosted office did not expose either login or an authenticated shell'
                 hosted['login_visible']=livepage.locator('#login').is_visible()
                 hosted['authenticated_shell_visible']=livepage.locator('#shell').is_visible()
                 hosted['artwork_status']=live.request.get('https://virtual-office-production-62b4.up.railway.app/showroom.avif',timeout=15000).status
