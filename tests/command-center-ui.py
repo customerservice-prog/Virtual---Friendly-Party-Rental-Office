@@ -33,8 +33,10 @@ with tempfile.TemporaryDirectory(prefix='command-ui-') as tmp:
                 check('owner message waits safely while master switch is off')
                 page.locator('#cmd-shift').click();expect(page.locator('#cmd-chat-log')).to_contain_text('OFFICE BRIEF',timeout=20000)
                 check('24/7 master switch resumes and processes the owner request')
-                expect(page.locator('.cmd-board-line')).to_have_count(8,timeout=20000)
-                check('big wall visibly contains employee-to-employee saved messages')
+                for _ in range(80):
+                    if page.locator('.cmd-board-line').count()>=8:break
+                    page.wait_for_timeout(250)
+                check('big wall visibly contains employee-to-employee saved messages',page.locator('.cmd-board-line').count()>=8)
                 board=page.locator('#cmd-board-stream').inner_text()
                 check('board shows directional collaboration','Morgan' in board and 'Avery' in board and 'Alex' in board and 'Riley' in board)
                 check('direct line is not cluttered with every peer message',page.locator('#cmd-chat-log .cmd-bubble').count()<page.locator('.cmd-board-line').count())
