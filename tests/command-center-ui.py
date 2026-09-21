@@ -96,7 +96,9 @@ with tempfile.TemporaryDirectory(prefix='command-ui-') as tmp:
                     check(f'owner message bar remains visible at {w}px',page.locator('#cmd-message').is_visible())
                     if w==390:page.screenshot(path=str(OUT/'command-team-mobile.png'),full_page=True)
 
-                page.locator('[data-cmd-person="phone"]').last.click()
+                if page.locator('#cmd-conversation').evaluate("e=>e.classList.contains('open')"):
+                    page.locator('#cmd-chat-close').click()
+                page.locator('.cmd-person[data-cmd-person="phone"]').click()
                 check('clicking Riley addresses Riley',page.locator('#cmd-to').input_value()=='phone')
                 check('employee click opens direct conversation drawer',page.locator('#cmd-conversation').evaluate("e=>e.classList.contains('open')"))
 
