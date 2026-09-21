@@ -1,0 +1,5 @@
+n;gap:12px}.login-crown{font-size:45px;margin-bottom:20px}.login-intro{font-size:11px}#connection-error{left:12px;right:12px;top:83px;font-size:11px}.record-summary{gap:10px}.record-summary article{padding:20px}.records-hero{padding:20px}.records-hero h2{font-size:21px}.records-hero p{font-size:12px}.team-directory-card{padding:13px}.team-directory-card p{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}@media(forced-colors:active){.button,.nav-item,.team-card,.stat,.owner-cta{border:1px solid ButtonText}.scene-area{forced-color-adjust:none}.room-art{opacity:.4}}
+
+/* Vector crown, not a chess-piece glyph. */
+.crown{font-size:0!important;display:inline-block;width:42px;height:42px;background:url('/icon.svg') center/contain no-repeat;flex:none}.brand .crown{width:33px;height:38px}.owner-cta .crown{width:33px;height:33px}.login-crown{width:54px;height:54px}@media(min-width:1800px){.brand .crown{width:40px;height:44px}}@media(max-width:1250px){.brand .crown{width:29px;height:34px}}@media(max-width:760px){.owner-cta .crown{width:32px;height:32px}}

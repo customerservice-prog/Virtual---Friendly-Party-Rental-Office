@@ -1,74 +1,81 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#132d31">
-  <meta name="description" content="Your supervised Friendly Party Rental virtual office. Observe tasks, review drafts and stay in control.">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Friendly Office · Virtual Headquarters</title>
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/style.css">
-  <script type="module" src="/app.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#191a1d"><meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Friendly Party Rental's private virtual showroom. Inspect your team's work, review drafts, and stay in control.">
+<title>Friendly Office · Virtual Headquarters</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="preload" href="/showroom.avif" as="image">
+<link rel="stylesheet" href="/style.css?v=showroom-2"><script type="module" src="/app.js?v=showroom-2"></script>
 </head>
-<body>
-  <a href="#main" class="skip">Skip to workspace</a>
-  <div id="login" class="login-screen" hidden>
-    <form id="login-form" class="login-card">
-      <img src="/icon.svg" width="64" height="64" alt="Friendly Office">
-      <p class="eyebrow">FRIENDLY PARTY RENTAL</p>
-      <h1>Welcome to your office.</h1><p>Your team. Your business. Your oversight.</p>
-      <label for="password">Owner password</label><input id="password" type="password" autocomplete="current-password" required maxlength="1000">
-      <button class="button primary" type="submit">Enter the office <span aria-hidden="true">→</span></button>
-      <p id="login-error" role="alert"></p><small>This is a private owner workspace, not a customer booking page.</small>
-    </form>
-  </div>
-  <div id="shell" class="shell" hidden>
-    <aside class="rail" aria-label="Main navigation">
-      <a class="brand" href="/" aria-label="Friendly Office home"><img src="/icon.svg" alt="" width="44" height="44"></a>
-      <div class="rail-divider"></div>
-      <nav id="navigation">
-        <button class="nav-item active" data-view="office" title="Virtual office"><span class="nav-icon" data-icon="office"></span><span>Office</span></button>
-        <button class="nav-item" data-view="tasks" title="Shared task board"><span class="nav-icon" data-icon="board"></span><span>Tasks</span></button>
-        <button class="nav-item" data-view="approvals" title="Owner approvals"><span class="nav-icon" data-icon="check"></span><span>Review</span><b id="nav-review" class="nav-count" hidden>0</b></button>
-        <button class="nav-item" data-view="handbook" title="Company handbook"><span class="nav-icon" data-icon="book"></span><span>Handbook</span></button>
-        <button class="nav-item" data-view="connections" title="Connections and permissions"><span class="nav-icon" data-icon="connect"></span><span>Connect</span></button>
-      </nav>
-      <div class="rail-bottom"><span class="avatar owner-avatar">BP</span><small>OWNER</small></div>
-    </aside>
-    <div class="main-wrap">
-      <header class="topbar"><div class="breadcrumb"><strong>Friendly Party Rental</strong><span>/</span><span>Virtual headquarters</span></div><div class="top-actions"><span id="network" class="network"><i></i> Connecting</span><button id="help" class="icon-button" title="How the office works" aria-label="How the office works">?</button><button id="logout" class="text-button">Sign out</button></div></header>
-      <main id="main" tabindex="-1">
-        <div id="connection-error" class="alert error" hidden role="alert"></div>
-        <div class="heading-row"><div><p class="eyebrow" id="page-eyebrow">YOUR BUSINESS, IN VIEW</p><h1 id="page-title">Welcome to the office, Bryan<span class="title-dot">.</span></h1><p id="page-subtitle" class="subtitle">A small team. A shared mission. You're in control.</p></div><div class="heading-actions"><span id="mode-badge" class="badge warm">Practice workspace</span><button id="pause-all" class="button secondary" disabled><span data-icon="pause"></span><span>Office paused</span></button></div></div>
-        <div id="workspace-note" class="workspace-note"></div>
-        <section id="office-view" class="view">
-          <div id="stats" class="stats"></div>
-          <div class="office-layout">
-            <section class="scene-area" aria-label="Interactive 3D Friendly Party Rental office">
-              <div class="scene-top"><div><span class="floor-tag">FLOOR 01</span><strong>Syracuse headquarters</strong></div><span class="scene-hint">Click a desk to see the work</span></div>
-              <canvas id="office-canvas" aria-label="3D office. Drag to rotate. Use the employee cards below for keyboard access." tabindex="0"></canvas>
-              <div id="desk-labels" class="desk-labels"></div>
-              <div id="scene-fallback" class="scene-fallback" hidden><span data-icon="office"></span><h2>Your office is still available.</h2><p>This device could not start the 3D view. Use the employee cards below to inspect every task and approval.</p></div>
-              <div class="scene-bottom"><span class="scene-legend"><i></i> Status reflects recorded work</span><div class="camera-controls" aria-label="Office camera controls"><button data-camera="overview" class="selected" title="Office overview">Overview</button><button data-camera="owner" title="Sit at the owner desk">Owner's chair</button><button data-camera="top" title="Overhead view">Top view</button><button data-camera="zoom" aria-label="Zoom in">+</button><button data-camera="out" aria-label="Zoom out">−</button></div></div>
-            </section>
-            <aside class="activity-panel"><div class="panel-heading"><h2>Office activity</h2><span id="activity-live" class="live-tag">RECORDED</span></div><p class="panel-subtitle">The work behind the desks.</p><div id="activity-feed" class="activity-feed"></div><button class="activity-review" data-view="approvals"><span data-icon="check"></span><span>Visit your review desk</span><b>→</b></button></aside>
-          </div>
-          <div class="section-label"><h2>Your team</h2><span>Three AI roles. One owner.</span></div>
-          <div id="team-cards" class="team-cards"></div>
-          <div id="practice-welcome" class="practice-welcome"><div><strong>Take your first walk through the office.</strong><p>Run three fictional scenarios, inspect the work, and try an approval. No emails or model charges.</p></div><button id="start-practice" class="button primary"><span data-icon="play"></span>Start practice shift</button></div>
+<body data-hq-view="office" data-scene-mode="showroom" data-room="overview">
+<a href="#main" class="skip">Skip to workspace</a>
+<div id="login" class="login-screen" hidden>
+  <div class="login-scenery" aria-hidden="true"></div>
+  <form id="login-form" class="login-card">
+    <span class="crown login-crown" aria-hidden="true">♛</span><p class="eyebrow">FRIENDLY PARTY RENTAL</p>
+    <h1>Your business.<br>Your virtual office.</h1><p class="login-intro">Step inside the showroom. See your team's work.<br>Keep every important decision in your hands.</p>
+    <label for="password">Owner password</label><input id="password" type="password" autocomplete="current-password" required maxlength="1000" placeholder="Enter your private office password">
+    <button class="button primary" type="submit">Enter the office <span aria-hidden="true">→</span></button>
+    <p id="login-error" role="alert"></p><small>Private owner workspace · Not a customer booking page</small>
+  </form>
+  <p class="login-caption">SYRACUSE, NEW YORK <span>Designed around your real showroom.</span></p>
+</div>
+<div id="shell" class="shell" hidden>
+  <aside class="rail" aria-label="Main navigation">
+    <button class="brand" data-hq-route="overview" aria-label="Friendly Office home"><span class="crown" aria-hidden="true">♛</span><span>Friendly<br>Party Rental<small>EVENTS · PEOPLE · MOMENTS</small></span></button>
+    <div class="rail-divider"></div>
+    <nav id="navigation">
+      <button class="nav-item active" data-hq-route="overview" aria-current="page"><span class="nav-icon" data-icon="office"></span><span>Overview</span></button>
+      <button class="nav-item" data-hq-route="team"><span class="nav-icon" data-icon="user"></span><span>Team</span></button>
+      <button class="nav-item" data-hq-route="orders"><span class="nav-icon" data-icon="board"></span><span>Orders</span></button>
+      <button class="nav-item" data-hq-route="inventory"><span class="nav-icon" data-icon="box"></span><span>Inventory</span></button>
+      <button class="nav-item" data-hq-route="schedule"><span class="nav-icon" data-icon="calendar"></span><span>Schedule</span></button>
+      <button class="nav-item" data-hq-route="customers"><span class="nav-icon" data-icon="mail"></span><span>Customers</span></button>
+      <button class="nav-item" data-hq-route="finances"><span class="nav-icon" data-icon="chart"></span><span>Finances</span></button>
+      <button class="nav-item" data-hq-route="reports"><span class="nav-icon" data-icon="report"></span><span>Reports</span></button>
+      <button class="nav-item" data-hq-route="settings"><span class="nav-icon" data-icon="settings"></span><span>Settings</span></button>
+    </nav>
+    <div class="rail-bottom"><p class="brand-motto">Great events.<br>Thoughtfully managed.</p><span class="gold-rule"></span><button class="owner-profile" data-agent="owner"><span class="avatar owner-avatar">BP</span><span>Bryan<small>OWNER'S DESK</small></span><b>↗</b></button></div>
+  </aside>
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="mobile-menu icon-button" id="mobile-menu" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <div class="header-brand"><strong><span>Friendly</span> Party Rental</strong><span>Virtual Office</span></div>
+      <div class="header-mantra">MANAGE TODAY.<br><span>CREATE MORE TOMORROW.</span></div>
+      <div class="top-actions"><div class="office-clock"><span id="office-date">Syracuse headquarters</span><strong id="office-time"></strong></div><span id="network" class="network"><i></i> Connecting</span><button id="help" class="icon-button" title="How the office works" aria-label="How the office works">?</button><button id="logout" class="text-button">Sign out</button></div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div id="connection-error" class="alert error" hidden role="alert"></div>
+      <div class="heading-row"><div><p class="eyebrow" id="page-eyebrow">YOUR BUSINESS, IN VIEW</p><h1 id="page-title">Welcome to the office, Bryan.</h1><p id="page-subtitle" class="subtitle">A small team. A shared mission. You're in control.</p></div></div>
+      <div class="office-toolbar"><div class="workspace-switch"><span class="status-light"></span><span id="mode-badge" class="badge warm">Practice workspace</span><span class="toolbar-separator"></span><span class="toolbar-location">SYRACUSE HQ</span></div><div class="heading-actions"><button id="start-practice" class="button compact secondary"><span data-icon="play"></span>Start practice shift</button><button id="pause-all" class="button compact secondary" disabled>Office paused</button><button class="button compact primary" id="open-command"><span data-icon="spark"></span><span>Give an instruction</span></button></div></div>
+      <div id="workspace-note" class="workspace-note"></div>
+      <section id="office-view" class="view">
+        <section class="scene-area" aria-label="Interactive showroom workspace">
+          <div class="stage-viewport"><div class="room-stage" id="room-stage"><img id="room-art" class="room-art" src="/showroom.avif" width="1354" height="741" alt="Illustrated Friendly Party Rental showroom with throne displays, linen racks, photo booth, concession machines, and three virtual employee workstations." fetchpriority="high"><div id="team-cards" class="team-cards"></div><div class="monitor-label monitor-office" aria-hidden="true">MORGAN<span>Office workspace</span></div><div class="monitor-label monitor-email" aria-hidden="true">AVERY<span>Customer care</span></div><div class="monitor-label monitor-tech" aria-hidden="true">ALEX<span>Technical support</span></div></div></div>
+          <div class="scene-top"><span class="floor-tag">YOUR SHOWROOM</span><span class="scene-hint">Select a desk to inspect the actual work</span></div>
+          <canvas id="office-canvas" aria-label="3D spatial office. Drag to rotate; select a desk to inspect its work." tabindex="0"></canvas>
+          <div id="desk-labels" class="desk-labels"></div>
+          <div id="scene-fallback" class="scene-fallback" hidden><h2>Your team is still available.</h2><p>This device cannot display the spatial view. Choose Showroom or use Team to inspect the work.</p><button class="button primary" data-scene-mode="showroom">Return to showroom</button></div>
+          <aside class="room-views" aria-label="Showroom scenic viewpoints"><div class="room-views-heading"><strong>Room views</strong><span class="view-counter">04</span></div><p>SCENIC VIEWS · NOT CAMERAS</p><button class="room-view selected" data-room="overview" aria-pressed="true"><span class="thumbnail thumb-showroom"></span><span>Showroom <b>↗</b></span></button><button class="room-view" data-room="door" aria-pressed="false"><span class="thumbnail thumb-door"></span><span>Front door <b>↗</b></span></button><button class="room-view" data-room="concessions" aria-pressed="false"><span class="thumbnail thumb-concessions"></span><span>Concessions <b>↗</b></span></button><button class="room-view" data-room="storage" aria-pressed="false"><span class="thumbnail thumb-storage"></span><span>Storage & linens <b>↗</b></span></button><button class="activity-toggle" id="show-activity"><span data-icon="clock"></span>Activity log</button></aside>
+          <div class="scene-bottom"><div class="scene-mode-switch" aria-label="Scene display mode"><button class="selected" data-scene-mode="showroom" aria-pressed="true">Showroom</button><button data-scene-mode="spatial" aria-pressed="false">Explore 3D</button></div><div class="camera-controls" aria-label="Spatial camera controls"><button data-camera="overview" class="selected">Overview</button><button data-camera="owner">Owner's chair</button><button data-camera="top">Top view</button><button data-camera="zoom" aria-label="Zoom in">+</button><button data-camera="out" aria-label="Zoom out">−</button></div><span class="scene-legend">Illustrated environment · Task status is real</span></div>
         </section>
-        <section id="tasks-view" class="view" hidden><div class="filter-row"><label class="search"><span data-icon="search"></span><input id="task-search" type="search" placeholder="Find a task…" aria-label="Search tasks"></label><select id="task-filter" aria-label="Filter by employee"><option value="all">All employees</option><option value="office">Morgan · Office</option><option value="email">Avery · Customer care</option><option value="tech">Alex · Technical</option></select></div><div id="task-board" class="task-board"></div></section>
-        <section id="approvals-view" class="view" hidden><div class="alert"><span data-icon="shield"></span><div><strong>Your approval is not a send button.</strong><p>Accepting a draft records your decision. This version cannot send emails, change orders, issue refunds or deploy websites.</p></div></div><div id="approval-list"></div></section>
-        <section id="handbook-view" class="view" hidden><div class="two-column"><div><h2>Approved operating procedures</h2><p class="muted">Shared by all three employees. Permanent rules require their own approval.</p><div id="rule-list"></div></div><form id="rule-form" class="panel form-panel"><span class="mini-icon" data-icon="book"></span><h2>Teach the office a procedure</h2><p>A correction to one draft is not automatically company policy.</p><label for="rule-title">Procedure name</label><input id="rule-title" maxlength="100" required placeholder="For example: quote intake details"><label for="rule-body">What should the team do?</label><textarea id="rule-body" rows="6" maxlength="3000" required placeholder="Write a clear instruction the team should follow in future tasks."></textarea><button class="button primary" type="submit">Propose procedure</button><small>Procedures cannot grant new tool permissions or override the application's safety controls.</small></form></div></section>
-        <section id="connections-view" class="view" hidden><div class="alert"><span data-icon="lock"></span><div><strong>Connections are explicit, never assumed.</strong><p>Connections in ChatGPT do not automatically connect this separate app. Credentials stay on the server. Practice tasks never use live sources.</p></div></div><div id="mode-settings"></div><div id="connection-cards" class="connection-cards"></div><div class="two-column"><form id="import-form" class="panel form-panel"><h2>Import an order snapshot</h2><p>Optional owner-provided JSON. Always labeled as imported data, not verified live inventory.</p><label for="import-json">Snapshot JSON</label><textarea id="import-json" rows="7" required placeholder='{"asOf":"2026-09-21T12:00:00Z","orders":[]}'></textarea><button class="button secondary" type="submit">Import for review</button><small>Schema and configuration instructions are included in the repository's docs/INTEGRATIONS.md.</small></form><div class="panel form-panel"><h2>Your office records</h2><p>Tasks, evidence, decisions and approved procedures persist in the office database. Export a review copy whenever you need it.</p><a class="button secondary" href="/api/export" download>Export office records</a><small>Exports may contain customer information after you connect real sources. Store them privately. Tokens and credentials are never included.</small><div class="hard-boundary"><span data-icon="shield"></span><strong>Outbound business actions: disabled</strong><p>No email sending, payment processing, order changes, arbitrary code execution or production deployment tools are exposed.</p></div></div></div></section>
-      </main>
-      <footer class="command-dock"><span class="command-icon" data-icon="spark"></span><form id="command-form"><label for="command" class="sr-only">Give your team an instruction</label><input id="command" placeholder="Give your team an instruction…" required maxlength="4000" autocomplete="off"><select id="command-role" aria-label="Assign instruction"><option value="auto">Route by topic</option><option value="office">Morgan · Office</option><option value="email">Avery · Email</option><option value="tech">Alex · Tech</option></select><button class="button primary" type="submit"><span>Assign task</span><span aria-hidden="true">↑</span></button></form></footer>
-    </div>
+        <div class="owner-dock"><div id="stats" class="stats"></div><button class="owner-cta" data-agent="owner"><span class="crown" aria-hidden="true">♛</span><span>Owner Control Panel<small>Review work & make decisions</small></span><b>›</b></button></div>
+        <div id="practice-welcome" class="practice-welcome"><strong>Your first shift starts here.</strong><span>The sample tasks are fictional. Nothing is sent to customers.</span></div>
+      </section>
+      <section id="tasks-view" class="view" hidden><div class="filter-row"><label class="search"><span data-icon="search"></span><input id="task-search" type="search" placeholder="Find a task…" aria-label="Search tasks"></label><select id="task-filter" aria-label="Filter by employee"><option value="all">All employees</option><option value="office">Morgan · Office</option><option value="email">Avery · Customer care</option><option value="tech">Alex · Technical</option></select><button class="button secondary" data-view="approvals">Owner review <span id="nav-review" class="nav-count" hidden>0</span></button></div><div id="task-board" class="task-board"></div></section>
+      <section id="approvals-view" class="view" hidden><div class="alert"><span data-icon="shield"></span><div><strong>Your approval is not a send button.</strong><p>Approving records your decision. This version cannot send emails, change orders, issue refunds or deploy websites.</p></div></div><div id="approval-list"></div></section>
+      <section id="handbook-view" class="view" hidden><div class="two-column"><div><h2>Approved operating procedures</h2><p class="muted">Shared by all employees. Permanent rules require their own approval.</p><div id="rule-list"></div></div><form id="rule-form" class="panel form-panel"><span data-icon="book"></span><h2>Teach the office a procedure</h2><p>Changing a single draft does not change company policy.</p><label for="rule-title">Procedure name</label><input id="rule-title" maxlength="100" required placeholder="For example: quote intake details"><label for="rule-body">What should the team do?</label><textarea id="rule-body" rows="6" maxlength="3000" required></textarea><button class="button primary" type="submit">Propose procedure</button><small>Procedures cannot grant tool permissions or override safety controls.</small></form></div></section>
+      <section id="connections-view" class="view" hidden><div class="settings-links"><button class="button secondary" data-view="handbook"><span data-icon="book"></span>Company handbook</button><a class="button secondary" href="/api/export" download><span data-icon="download"></span>Export office records</a></div><div class="alert"><span data-icon="lock"></span><div><strong>Connections are explicit, never assumed.</strong><p>ChatGPT connections do not automatically connect this separate app. Credentials stay on the server. Practice uses no live sources.</p></div></div><div id="mode-settings"></div><div id="connection-cards" class="connection-cards"></div><div class="two-column"><form id="import-form" class="panel form-panel"><h2>Import an order snapshot</h2><p>Owner-provided JSON. Labeled as imported data, not verified live inventory.</p><label for="import-json">Snapshot JSON</label><textarea id="import-json" rows="7" required placeholder='{"asOf":"2026-09-21T12:00:00Z","orders":[]}'></textarea><button class="button secondary" type="submit">Import for review</button><small>Schema: docs/INTEGRATIONS.md in the repository.</small></form><div class="panel form-panel"><h2>Your office records</h2><p>Tasks, evidence, decisions and procedures persist in the office database. Exports may contain customer information after connecting real sources.</p><a class="button secondary" href="/api/export" download>Export office records</a><div class="hard-boundary"><span data-icon="shield"></span><strong>Outbound business actions: disabled</strong><p>No email sends, payments, booking changes, code execution or website deployments.</p></div></div></div></section>
+      <section id="records-view" class="hq-view" hidden><div id="records-content"></div></section>
+    </main>
+    <footer class="command-dock"><div class="command-caption"><span data-icon="spark"></span><strong>Give your team an instruction</strong><button id="close-command" class="icon-button" aria-label="Close instruction bar">×</button></div><form id="command-form"><label for="command" class="sr-only">Give your team an instruction</label><input id="command" placeholder="What would you like the office to work on?" required maxlength="4000" autocomplete="off"><select id="command-role" aria-label="Assign instruction"><option value="auto">Route by topic</option><option value="office">Morgan · Office</option><option value="email">Avery · Email</option><option value="tech">Alex · Tech</option></select><button class="button primary" type="submit">Assign task <span>↑</span></button></form></footer>
   </div>
-  <dialog id="inspector" class="inspector"><div id="inspector-content"></div></dialog>
-  <dialog id="help-dialog" class="help-dialog"><button class="close-dialog icon-button" aria-label="Close help">×</button><p class="eyebrow">WELCOME TO YOUR VIRTUAL HQ</p><h2>See the work. Keep the control.</h2><p>Start the practice shift to create three fictional tasks. Click a desk or employee card to inspect the source, review the draft and see the recorded steps.</p><div class="help-steps"><p><b>01 · Observe</b> The room shows actual task states. Available means no work is running.</p><p><b>02 · Review</b> Edit a draft, approve that exact version, request changes or hand the task to another role.</p><p><b>03 · Connect carefully</b> Shadow mode can read explicitly configured sources. Optional model-assisted drafts require your API credentials and consent.</p></div><div class="alert">These are supervised AI roles, not human employees or demonstrated AGI. Practice uses deterministic checks. No external business actions are executed.</div><button class="button primary close-dialog">Enter my office</button></dialog>
-  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <noscript>This workspace requires JavaScript. No business tasks run in your browser with JavaScript disabled.</noscript>
-</body>
-</html>
+</div>
+<dialog id="inspector" class="inspector"><div id="inspector-content"></div></dialog>
+<dialog id="activity-dialog" class="activity-dialog"><div class="dialog-top"><div><p class="eyebrow">THE WORK BEHIND THE DESKS</p><h2>Office activity</h2></div><button class="icon-button" data-close="activity-dialog" aria-label="Close activity log">×</button></div><p class="muted">Recorded actions, not a simulated surveillance feed.</p><span id="activity-live" class="live-tag">RECORDED</span><div id="activity-feed" class="activity-feed"></div></dialog>
+<dialog id="team-dialog" class="team-dialog"><div class="dialog-top"><div><p class="eyebrow">THREE AI ROLES · ONE OWNER</p><h2>Your office team</h2></div><button class="icon-button" data-close="team-dialog" aria-label="Close team">×</button></div><div id="team-directory"></div></dialog>
+<dialog id="help-dialog" class="help-dialog"><button class="close-dialog icon-button" aria-label="Close help">×</button><p class="eyebrow">WELCOME TO YOUR VIRTUAL HQ</p><h2>See the work. Keep the control.</h2><p>The showroom matches your chosen visual reference. Select a virtual employee's desk to inspect actual saved tasks, drafts, evidence and recorded actions.</p><div class="help-steps"><p><b>01 · Observe</b> Desk status comes from the office task system. The illustrated people and scene are not a live video or camera feed.</p><p><b>02 · Review</b> Edit, approve an exact draft, request changes, or hand work to another employee.</p><p><b>03 · Connect carefully</b> Shadow mode reads explicitly configured sources. Model-assisted drafts need credentials and owner consent.</p></div><div class="alert">Practice uses fictional tasks. Approvals do not send messages, change orders or publish code. The existing spatial office remains available under Explore 3D; the photo-style scene is not a measured 3D scan.</div><button class="button primary close-dialog">Enter my office</button></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<noscript>This private workspace requires JavaScript. No business actions are enabled.</noscript>
+</body></html>

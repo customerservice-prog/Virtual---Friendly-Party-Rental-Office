@@ -1,7 +1,7 @@
 name: Office checks
 on:
   push:
-    branches: [main]
+    branches: [main, showroom-frontend]
   pull_request:
 permissions:
   contents: read
@@ -18,3 +18,23 @@ jobs:
           node-version: ${{ matrix.node }}
       - run: npm run check
       - run: npm test
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.57.0
+      - run: python -m playwright install --with-deps chromium
+      - run: npm run build
+      - run: python tests/showroom-ui.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: showroom-browser-evidence
+          path: test-results/
+          retention-days: 7
