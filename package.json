@@ -1,6 +1,6 @@
 {
   "name": "friendly-party-rental-office",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "A supervised, observable 3D virtual office for Friendly Party Rental.",
@@ -9,6 +9,6 @@
     "start": "node --env-file-if-exists=.env server.mjs",
     "dev": "node --watch --env-file-if-exists=.env server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check server.mjs && node --check lib/store.mjs && node --check lib/engine.mjs && node --check lib/integrations.mjs && node --check public/app.js && node --check public/scene.js"
+    "check": "node --check bootstrap.mjs && node --check hosted-check.mjs && node --check server.mjs && node --check lib/store.mjs && node --check lib/engine.mjs && node --check lib/integrations.mjs && node --check public/app.js && node --check public/scene.js"
   }
 }

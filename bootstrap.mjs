@@ -35,4 +35,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   // Run the existing server entrypoint, retaining its validation and signal handling.
   process.argv[1] = fileURLToPath(new URL('./server.mjs', import.meta.url));
   await import('./server.mjs');
+  if (process.env.OFFICE_HOSTED_CHECK === '1') {
+    const { verifyHostedStartup } = await import('./hosted-check.mjs');
+    await verifyHostedStartup();
+  }
 }
