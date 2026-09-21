@@ -67,3 +67,6 @@ body.command-focus .vo-topbar{position:absolute;z-index:20;left:12px;right:12px;
   .vo-room{min-height:1050px}.vo-wall{min-height:300px}.vo-huddle button b{font-size:7px}.vo-office,.vo-email,.vo-phone,.vo-tech{width:calc(50% - 10px)}.vo-office{left:6px}.vo-email{right:6px}.vo-phone{left:6px}.vo-tech{right:6px}.vo-person{min-height:140px}.vo-owner-row .vo-owner-badge{display:none}.vo-recipient,.vo-context{flex:1 1 46%}.vo-quick button{font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.vo-conversation,.vo-speech,.vo-person{transition:none}}
+
+body[data-hq-view="command"] #connection-error{display:none!important}
+.vo-brand .cmd-live.stale:after{content:' · trying again';font-weight:400;letter-spacing:0;color:#a99a85}
