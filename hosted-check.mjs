@@ -73,13 +73,26 @@ export async function verifyHostedStartup(env = process.env) {
     const logout = await request('/api/logout', { auth: true, body: {} });
     checks.logoutInvalidatesSession = logout.status === 200 && (await request('/api/state', { auth: true })).status === 401;
     cookie = ''; csrf = '';
-    try {
-      const response = await fetch(origin + '/healthz', { redirect: 'error', signal: AbortSignal.timeout(8000) });
-      const health = await response.json();
-      checks.publicHttpsHealth = response.status === 200 && health.status === 'ok' && health.service === 'friendly-office';
-      checks.publicHttpsSecurityHeaders = response.headers.get('x-frame-options') === 'DENY' && !!response.headers.get('strict-transport-security');
-      checks.publicAnonymousStateDenied = (await fetch(origin + '/api/state', { redirect: 'error', signal: AbortSignal.timeout(8000) })).status === 401;
-    } catch { checks.publicHttpsHealth = false; }
+    // A new replica may listen before Railway switches its public route.
+    // Keep serving normally, then make bounded, real HTTPS checks.
+    await new Promise(resolve => setTimeout(resolve, 15000));
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const response = await fetch(origin + '/healthz', { redirect: 'error', signal: AbortSignal.timeout(8000) });
+        const health = await response.json();
+        checks.publicHttpsHealth = response.status === 200 && health.status === 'ok' && health.service === 'friendly-office';
+        checks.publicHttpsSecurityHeaders = response.headers.get('x-frame-options') === 'DENY' && !!response.headers.get('strict-transport-security');
+        checks.publicAnonymousStateDenied = (await fetch(origin + '/api/state', { redirect: 'error', signal: AbortSignal.timeout(8000) })).status === 401;
+        if (checks.publicHttpsHealth && checks.publicHttpsSecurityHeaders && checks.publicAnonymousStateDenied) {
+          delete checks.publicHttpsFailure;
+          break;
+        }
+      } catch (error) {
+        checks.publicHttpsHealth = false;
+        checks.publicHttpsFailure = String(error.cause?.code || error.name || 'Error').replace(/[^A-Za-z0-9_]/g, '').slice(0, 80);
+      }
+      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   } catch (error) {
     checks.checkerCompleted = false;
     console.log('OFFICE_HOSTED_CHECK_ERROR ' + String(error.name || 'Error').replace(/[^A-Za-z]/g, ''));
