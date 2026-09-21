@@ -1,5 +1,5 @@
 """Real app/browser apprenticeship checks; fictional data only, no external model."""
-import os, socket, subprocess, tempfile, time, json, urllib.request
+import os, socket, subprocess, tempfile, time, json, urllib.request, re
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'test-results';OUT.mkdir(exist_ok=True)
@@ -24,6 +24,7 @@ with tempfile.TemporaryDirectory(prefix='ap-browser-') as tmp:
                 opts={'args':['--disable-dev-shm-usage']}
                 browser=p.chromium.launch(**opts);ctx=browser.new_context(viewport={'width':1672,'height':1000},reduced_motion='reduce');page=ctx.new_page();errors=[]
                 page.on('pageerror',lambda e:errors.append(str(e)))
+                page.on('response',lambda r:print('AP_HTTP '+str(r.status)+' '+r.url,flush=True) if '/api/apprentice/' in r.url and r.status>=400 else None)
                 page.goto(origin,wait_until='domcontentloaded');page.locator('#password').fill(env['OWNER_PASSWORD']);page.locator('#login-form button').click();expect(page.locator('#shell')).to_be_visible()
                 check('original showroom remains the default',page.locator('body').get_attribute('data-scene-mode')=='showroom')
                 expect(page.locator('.ap-nav')).to_be_visible();check('apprenticeship launch controls added without replacing showroom')
@@ -33,7 +34,7 @@ with tempfile.TemporaryDirectory(prefix='ap-browser-') as tmp:
                 page.locator('[data-ap-action="practice"]').click();expect(page.locator('#ap-question-form')).to_be_visible();check('fictional cross-channel case opens')
                 page.locator('#pause-all').click();page.wait_for_timeout(1100)
                 page.locator('#ap-question-form button').click()
-                page.wait_for_function("document.querySelector('#ap-draft')?.textContent.includes('SHARED REVIEW')",timeout=20000)
+                expect(page.locator('#ap-draft')).to_have_value(re.compile('SHARED REVIEW'),timeout=20000)
                 expect(page.locator('#ap-approve-form button')).to_be_enabled();check('team contributions produce one final review')
                 check('peer conversation visible',page.locator('.ap-note').count()>=9)
                 page.locator('#ap-draft').fill('Owner-edited fictional reply. Please send the event date and venue address.')
@@ -42,7 +43,12 @@ with tempfile.TemporaryDirectory(prefix='ap-browser-') as tmp:
                 page.locator('#ap-approve-form button').click();expect(page.locator('#toast')).to_contain_text('Nothing was sent')
                 expect(page.locator('#ap-approve-form button')).to_be_disabled();check('exact draft approval is recorded without sending')
                 page.screenshot(path=str(OUT/'apprentice-team-case-desktop.png'),full_page=True)
-                page.locator('.ap-tabs [data-ap-route="lessons"]').click();expect(page.locator('.ap-lesson-decision')).to_be_visible()
+                page.locator('.ap-tabs [data-ap-route="lessons"]').click()
+                page.wait_for_timeout(300)
+                page.screenshot(path=str(OUT/'apprentice-lessons-navigation.png'),full_page=True)
+                print('LEARNING_VIEW '+page.locator('#apprentice-view').inner_text()[:1800],flush=True)
+                print('BROWSER_ERRORS '+json.dumps(errors),flush=True)
+                expect(page.locator('.ap-lesson-decision')).to_be_visible()
                 page.locator('.ap-lesson-decision textarea').fill('Fictional procedure: ask for the venue address before promising delivery.')
                 page.locator('.ap-lesson-decision button[value="approved"]').click();expect(page.locator('.ap-lesson-decision .badge')).to_contain_text('approved');check('lesson requires an explicit owner decision')
                 page.locator('#navigation [data-hq-route="settings"]').click();expect(page.locator('#connections-view')).to_be_visible()
