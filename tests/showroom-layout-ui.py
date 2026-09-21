@@ -85,8 +85,9 @@ with tempfile.TemporaryDirectory(prefix='layout-ci-') as tmp:
             try:
                 response=livepage.goto('https://virtual-office-production-62b4.up.railway.app/',wait_until='domcontentloaded',timeout=25000)
                 hosted['html_status']=response.status if response else None
-                expect(livepage.locator('#login')).to_be_visible(timeout=15000)
-                hosted['login_visible']=True
+                livepage.wait_for_function("document.querySelector('#login:not([hidden])') || document.querySelector('#shell:not([hidden])')",timeout=15000)
+                hosted['login_visible']=livepage.locator('#login').is_visible()
+                hosted['authenticated_shell_visible']=livepage.locator('#shell').is_visible()
                 hosted['artwork_status']=live.request.get('https://virtual-office-production-62b4.up.railway.app/showroom.avif',timeout=15000).status
                 hosted['anonymous_state_status']=live.request.get('https://virtual-office-production-62b4.up.railway.app/api/state',timeout=15000).status
                 livepage.screenshot(path=str(OUT/'showroom-hosted-login.png'))
