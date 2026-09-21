@@ -26,6 +26,14 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
   if(env.ENABLE_BUILTIN_AI==='true' && integrations.status().ai.provider==='Friendly private brain' && !store.get('builtin-ai-initialized')) { const settings=store.get('settings'); store.set('settings',{...settings,useAI:true}); store.set('builtin-ai-initialized',{at:new Date().toISOString(),model:integrations.status().ai.model}); }
   const engine=new Engine(store,integrations),streams=new Set(),attempts=new Map(),requests=new Map(),imports=new Set();
   const apprenticeship=new Apprenticeship(store,integrations,engine);
+  if(env.ENABLE_LIVE_SHADOW==='true' && !store.get('live-shadow-initialized')) {
+    const settings=store.get('settings');
+    store.set('settings',{...settings,mode:'shadow',paused:false,useAI:integrations.status().ai.configured});
+    const ap=apprenticeship.data.settings();
+    store.set('ap:settings',{...ap,observing:integrations.status().gmail.connected,autoReview:true,includeDrafts:false,consentAt:new Date().toISOString()});
+    store.set('live-shadow-initialized',{at:new Date().toISOString(),scope:'read-only orders/site + mailbox observation; outbound email remains owner-approved; phone answering/recording off'});
+    store.event(null,'owner','Supervised live shadow initialized','Real read-only business sources may be observed. Customer sends still require exact owner approval; phone answering/recording remain off.');
+  }
   installCommandCenter(apprenticeship);
   let timer;
   const passwordSalt=randomBytes(16),expected=env.OWNER_PASSWORD?scryptSync(env.OWNER_PASSWORD,passwordSalt,32):null;
