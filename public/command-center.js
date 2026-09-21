@@ -229,7 +229,16 @@
     }catch(err){$('#cmd-submit-state').textContent=err.message;throw err;}finally{cmd.busy=false;freshness();}
   }));
 
-  function freshness(){const el=$('#cmd-live');if(!el)return;const fresh=connected&&Date.now()-cmd.receivedAt<45000;el.textContent=fresh?'● LIVE':'● RECONNECTING';el.classList.toggle('stale',!fresh);$('#cmd-send').disabled=!fresh||cmd.busy;}
+  function freshness(){
+    const el=$('#cmd-live');if(!el)return;
+    const fresh=connected&&Date.now()-cmd.receivedAt<45000;
+    el.textContent=fresh?'● LIVE':'● RECONNECTING';
+    el.classList.toggle('stale',!fresh);
+    const send=$('#cmd-send');send.disabled=cmd.busy||!state;
+    const status=$('#cmd-submit-state');
+    if(!fresh&&!cmd.busy&&!status.textContent)status.textContent='Reconnecting automatically — you can still type and press Send.';
+    if(fresh&&status.textContent.startsWith('Reconnecting automatically'))status.textContent='';
+  }
 
   const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   let voiceTimer;
