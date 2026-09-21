@@ -13,7 +13,7 @@ if(art.length!==52528||createHash('sha256').update(art).digest('hex')!=='7411791
 writeFileSync(resolve(root,'public/showroom.avif'),art);
 const styles=Array.from({length:5},(_,i)=>read(`assets/styles/part-${String(i).padStart(2,'0')}.css`)).join('');
 if(createHash('sha256').update(styles).digest('hex')!=='ace83de5ee535bca8b1a2361b1ba58e7011551ab53dd9726df1d6fe12a0e6e88')throw new Error('Showroom stylesheet integrity check failed.');
-write('public/style.css',styles+'\n'+read('public/showroom-controls.css')+'\n'+read('public/apprentice.css'));
+write('public/style.css',styles+'\n'+read('public/showroom-controls.css')+'\n'+read('public/apprentice.css')+'\n'+read('public/command-center.css'));
 const marker='\n// FRIENDLY_SHOWROOM_EXTENSION_V2\n';
 let app=read('public/app.js').split(marker)[0];
 const init='if(!scene){scene=new OfficeScene';
@@ -26,7 +26,7 @@ const oldTransform='stage.style.transform=`translate(-50%,-50%) translate(${-(x-
 const newTransform='stage.style.transform=showroomPlacement(r.width,r.height,hq.room).transform;';
 if(hq.includes(oldTransform))hq=hq.replace(oldTransform,newTransform);
 else if(!hq.includes(newTransform))throw new Error('Scenic placement changed; refusing a blind crop patch.');
-write('public/app.js',app+marker+read('lib/showroom-layout.mjs')+'\n'+hq+'\n'+read('public/showroom-controls.js')+'\n'+read('public/apprentice.js'));
+write('public/app.js',app+marker+read('lib/showroom-layout.mjs')+'\n'+hq+'\n'+read('public/showroom-controls.js')+'\n'+read('public/apprentice.js')+'\n'+read('public/command-center.js'));
 let server=read('server.mjs');
 if(!server.includes("'/showroom.avif':'showroom.avif'")){
   const token="'/icon.svg':'icon.svg'";
@@ -53,4 +53,4 @@ if(!boot.includes('SHOWROOM_HOSTED_CHECK')){
  if(!boot.includes(token))throw new Error('Bootstrap changed; verify the entrypoint.');
  boot=boot.replace(token,token+check);write('bootstrap.mjs',boot);
 }
-console.log('Showroom frontend ready. Task engine, login and business permissions unchanged.');
+console.log('Showroom and supervised command center ready. Outbound business actions remain disabled.');

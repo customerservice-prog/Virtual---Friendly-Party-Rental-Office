@@ -7,6 +7,7 @@ import { Store, OfficeError, roleById, requireText } from './lib/store.mjs';
 import { Integrations, validateSnapshot } from './lib/integrations.mjs';
 import { Engine, seedPractice, classify } from './lib/engine.mjs';
 import { Apprenticeship } from './lib/apprentice-api.mjs';
+import { installCommandCenter } from './lib/command-center.mjs';
 
 const ROOT=dirname(fileURLToPath(import.meta.url));
 const hash=value=>createHash('sha256').update(value).digest('hex');
@@ -24,6 +25,7 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
   integrations ||= new Integrations(store,env);
   const engine=new Engine(store,integrations),streams=new Set(),attempts=new Map(),requests=new Map(),imports=new Set();
   const apprenticeship=new Apprenticeship(store,integrations,engine);
+  installCommandCenter(apprenticeship);
   let timer;
   const passwordSalt=randomBytes(16),expected=env.OWNER_PASSWORD?scryptSync(env.OWNER_PASSWORD,passwordSalt,32):null;
   const anonymousCsrf=randomBytes(24).toString('hex');
@@ -55,7 +57,7 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
     res.setHeader('x-content-type-options','nosniff');
     res.setHeader('referrer-policy','no-referrer');
     res.setHeader('x-frame-options','DENY');
-    res.setHeader('permissions-policy','camera=(), microphone=(), geolocation=()');
+    res.setHeader('permissions-policy','camera=(), microphone=(self), geolocation=()');
     res.setHeader('content-security-policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'");
     if(env.NODE_ENV==='production') res.setHeader('strict-transport-security','max-age=31536000');
     const url=new URL(req.url,'http://office.local'),path=url.pathname;

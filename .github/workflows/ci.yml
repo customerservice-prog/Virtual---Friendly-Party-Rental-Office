@@ -1,7 +1,7 @@
 name: Office checks
 on:
   push:
-    branches: [main, showroom-frontend, showroom-controls, showroom-polish, apprenticeship]
+    branches: [main, showroom-frontend, showroom-controls, showroom-polish, apprenticeship, owner-command-center]
   pull_request:
 permissions:
   contents: read
@@ -36,6 +36,7 @@ jobs:
       - run: python tests/showroom-controls-ui.py
       - run: python tests/showroom-layout-ui.py
       - run: python tests/apprentice-ui.py
+      - run: python tests/command-center-ui.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
