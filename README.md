@@ -2,9 +2,13 @@
 
 A working, owner-supervised 3D office for **Friendly Party Rental, Syracuse, New York**. Open the room, click a desk, inspect its recorded work and approve an exact draft. This is a **practice / read-only shadow release**, not an autonomous employee replacement.
 
+## Apprenticeship release
+
+The showroom now includes **Team case room**, **Riley · Phone apprentice**, **Email shadowing**, and **Learning review**. Authorized completed-call transcripts and Gmail conversations can become shared cases. Employees consult one another with a bounded, recorded review and one owner-approved draft. Continuous mailbox observation, saved drafts, automatic case reviews and phone bridge delivery start OFF. Real providers require separate private configuration and consent; no customer sends or live call recording were enabled. Read [Apprenticeship](docs/APPRENTICESHIP.md) for operation, privacy, exact bridge contracts and remaining live-verification limits.
+
 ## Start the office
 
-Use **Node.js 22.13+ or Node.js 24**. There are no npm runtime dependencies and no build or package-install step.
+Use **Node.js 22.13+ or Node.js 24**. There are no npm runtime dependencies. `npm start` runs the required local asset build automatically; no package-install step is required.
 
 ```bash
 git clone https://github.com/customerservice-prog/Virtual---Friendly-Party-Rental-Office.git
@@ -68,6 +72,6 @@ docs/                  Hosting, integration contracts, security and QA
 
 ## Current limits
 
-Single owner, one application process and one persistent SQLite volume. No unattended inbox polling or production code-fixing loop. Imported Gmail content is plain text or a provider snippet; attachments and full HTML email understanding are not implemented. Snapshot reports cannot prove current availability when the source is stale or incomplete. Static HTML checks are not visual browser QA. The UI/export show up to 300 recent tasks and 120 recent global events; the database retains the stored event log and accepted-draft history. Retry/handoff clears the previous unapproved draft and evidence; it is not full version-history storage. Back up the database separately.
+Single owner, one application process and one persistent SQLite volume. No production code-fixing loop. The new explicitly enabled apprenticeship observer can poll the authorized mailbox every 60 seconds; the legacy manual inbox importer below is separate. Imported Gmail content is plain text or a provider snippet; attachments and full HTML email understanding are not implemented. Snapshot reports cannot prove current availability when the source is stale or incomplete. Static HTML checks are not visual browser QA. The UI/export show up to 300 recent tasks and 120 recent global events; the database retains the stored event log and accepted-draft history. Retry/handoff clears the previous unapproved draft and evidence; it is not full version-history storage. Back up the database separately.
 
 Live OAuth/model/provider access, hardware WebGL, hosting and restoration of production backups must be verified in the intended environment. See [Security](SECURITY.md).
