@@ -1,0 +1,62 @@
+/* Match the reference's spacious showroom, without losing real owner controls. */
+.room-art{filter:brightness(.95) saturate(.93)}
+.watch-office,.reset-room{flex:none;border:1px solid #d4ad7055;background:#282623ed;color:#edd0a0;border-radius:7px;padding:8px 11px;min-height:36px;font-size:10px;white-space:nowrap}
+.watch-office:hover,.reset-room:hover{background:#51402c;border-color:#d4ad70}
+.desk-shortcuts{font-size:9px;color:#c3b49d;white-space:nowrap}
+.scene-bottom{gap:9px;flex-wrap:wrap}.scene-bottom .scene-legend{display:none}
+.mobile-room-picker{display:none}
+.exit-watch{margin-left:auto;white-space:nowrap;min-height:40px;font-size:11px}
+body.watch-mode{--rail:0px}
+body.watch-mode .rail{display:none}
+body.watch-mode .shell{grid-template-columns:0 1fr}
+body.watch-mode .header-mantra,body.watch-mode .top-actions{display:none}
+body.watch-mode .room-views{right:16px}
+body.watch-mode .scene-top{left:28px}
+body.watch-mode .command-dock{left:18px;right:18px}
+@media(min-width:761px){
+ body.watch-mode{overflow:hidden}
+ body.watch-mode[data-hq-view="office"] #main{min-height:0;height:calc(100dvh - var(--header))}
+ body.watch-mode .stage-viewport{inset:54px 175px 126px 0}
+ body.watch-mode .room-stage{transition:none}
+}
+@media(max-width:1250px){.desk-shortcuts{display:none}.watch-office,.reset-room{font-size:10px;min-height:38px;padding:7px 9px}.scene-bottom{right:150px}}
+@media(max-width:980px) and (min-width:761px){.scene-bottom{right:139px}.watch-office{font-size:9px}.scene-mode-switch button{padding:8px}.scene-bottom .reset-room{font-size:9px}}
+@media(max-width:760px){
+ .mobile-team{display:grid;grid-template-columns:minmax(0,1fr);overflow:visible;scroll-snap-type:none;gap:9px;padding:13px 14px}
+ .mobile-team .team-card{width:100%!important;min-width:0;min-height:74px;padding:12px 14px}
+ .mobile-team .team-task{font-size:11px;min-height:0;line-height:1.6}
+ .mobile-team .team-name{font-size:14px}.mobile-team .team-role{font-size:11px}
+ .mobile-team .team-head .avatar{height:34px;width:34px;font-size:10px}
+ .mobile-room-picker{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 15px;background:#242427;border-bottom:1px solid #d4ad7024}
+ .mobile-room-picker>span{font-size:11px;color:#d5c4a7;white-space:nowrap}
+ .mobile-room-picker select{width:auto;max-width:210px;min-height:44px;font-size:13px;padding:8px 32px 8px 12px}
+ .scene-area{height:350px}.stage-viewport{inset:0 0 57px}
+ .scene-bottom{inset:auto 12px 7px;flex-wrap:nowrap;gap:6px}
+ .watch-office{margin-left:auto;min-height:42px;font-size:10px}
+ .scene-mode-switch button{min-height:42px;font-size:10px;padding:7px 9px}
+ .reset-room{display:none}.desk-shortcuts{display:none}
+ .top-actions .text-button{display:inline-flex;align-items:center;min-height:44px;padding:7px;font-size:10px}
+ .top-actions .network{display:none}.top-actions .icon-button{min-width:36px;min-height:40px}
+ .topbar{padding:0 12px;gap:8px}.header-brand strong{font-size:17px}
+ .heading-actions .button{min-height:44px;font-size:10px}
+ .rail{height:calc(64px + env(safe-area-inset-bottom))}
+ .main-wrap{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+ body.watch-mode .shell{display:block}
+ body.watch-mode .main-wrap{padding-bottom:0}
+ body.watch-mode .scene-area{height:clamp(350px,55dvh,520px)}
+ body.watch-mode .exit-watch{font-size:10px;min-height:44px;padding:9px 11px}
+ body.watch-mode .command-dock{bottom:15px}
+ body.watch-mode .toast{bottom:20px}
+ .login-card input{font-size:16px}
+}
+@media(max-height:550px) and (min-width:761px){
+ body.watch-mode{--header:62px}
+ body.watch-mode .room-views{display:none}
+ body.watch-mode .stage-viewport{inset:54px 0 105px}
+ body.watch-mode .scene-bottom{bottom:107px;right:16px}
+ body.watch-mode .owner-dock{bottom:33px}
+ body.watch-mode .stat{padding:8px}
+ body.watch-mode .owner-cta{padding:8px;min-width:160px}
+ body.watch-mode .scene-top{display:none}
+}
+@media(prefers-reduced-motion:reduce){.room-stage,.team-card,.button{transition:none!important}}

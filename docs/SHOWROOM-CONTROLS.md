@@ -1,0 +1,9 @@
+# Showroom controls and responsive polish
+
+This release changes the actual web frontend; it does not create another concept image. The existing supplied showroom illustration stays the default background, with HTML controls backed by authenticated office tasks. The separate spatial renderer is still available through Explore 3D.
+
+Changes: clamped scenic crops so front-door and storage views cannot expose blank edges; a reversible Watch office layout; keyboard desk shortcuts (1/2/3, ignored during text entry and dialogs); a mobile viewpoint selector; all three mobile employee cards visible in a vertical list; accessible mobile logout; monitor labels reflecting recorded employee status. No live camera or autonomous business-worker claim is made.
+
+Build: scripts/build-showroom.mjs joins the existing verified base CSS with public/showroom-controls.css, includes the pure lib/showroom-layout.mjs helper, applies a guarded replacement of the old scenic transform, and appends public/showroom-controls.js. Runtime remains dependency-free. Existing task engine, SQLite records, sessions, credentials and business permissions are unchanged.
+
+Tests: tests/showroom-layout.test.mjs checks crop bounds and input validation. tests/showroom-controls-ui.py runs actual Chromium against a disposable real Node backend, with fictional data and no production credentials. It checks desktop, phone, tablet and landscape sizes, real desk navigation, typing, watch-mode exit, viewport containment and mobile logout. Screenshots and JSON results are saved to the GitHub Actions showroom-browser-evidence artifact. These are CI browser tests, not a claim of an authenticated browser run against the production URL. The existing opt-in hosted verifier separately checks the public deployment's exact asset bytes and authentication denial.
