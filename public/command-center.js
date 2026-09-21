@@ -86,7 +86,7 @@
     const rows=(all?feed:feed.slice(0,10)).slice().reverse();
     if(!rows.length)return '<div class="cmd-board-empty"><strong>Everyone is caught up.</strong><span>The board will update when an employee asks a teammate, reports a finding, hands work off, disagrees, or completes a decision.</span></div>';
     return rows.map(n=>{
-      const kind=({question:'asks',contribution:'finds',summary:'concludes',finding:'flags',handoff:'hands off',owner-note:'notes','owner-request':'assigns','check-result':'reports',sent:'sends'})[n.kind]||n.kind;
+      const kind=({question:'asks',contribution:'finds',summary:'concludes',finding:'flags',handoff:'hands off','owner-note':'notes','owner-request':'assigns','check-result':'reports',sent:'sends'})[n.kind]||n.kind;
       return `<button class="cmd-board-line" data-ap-case="${n.caseId}">
         <span class="cmd-board-avatar" style="--person:${color[n.author]||'#b9a47b'}">${esc((names[n.author]||n.author).slice(0,2).toUpperCase())}</span>
         <span class="cmd-board-copy"><span><b>${esc(names[n.author]||n.author)}</b><i>→</i><b>${esc(names[n.recipient]||n.recipient)}</b><em>${esc(kind)}</em><time>${when(n.at)}</time></span><p>${esc(short(n.body,320))}${n.truncated?'…':''}</p><small>${esc(n.title)}</small></span>
