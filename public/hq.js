@@ -108,7 +108,7 @@
     if(b.dataset.hqBoard){setView('tasks');$('#task-filter').value=b.dataset.hqBoard;renderBoard();return;}
     if(!b.dataset.hqRoute||!state)return;
     const route=b.dataset.hqRoute;
-    if(route==='overview')setView(headings.command?'command':'office');
+    if(route==='overview')setView('office');
     else if(route==='team'){$('#team-dialog').showModal();}
     else if(route==='settings')setView('connections');
     else if(records[route])showRecord(route);
