@@ -73,7 +73,9 @@
 
   function activeCase(){
     const x=snapshot();if(!x)return null;
-    return x.team.find(r=>r.status==='working'&&r.caseId)?.caseId||x.feed?.find(n=>n.caseStatus==='working'||n.caseStatus==='queued')?.caseId||null;
+    return x.team.find(r=>r.status==='working'&&r.caseId)?.caseId||
+      x.feed?.find(n=>n.caseStatus==='working'||n.caseStatus==='queued')?.caseId||
+      x.feed?.find(n=>n.caseId)?.caseId||null;
   }
   function caseFeed(caseId){
     return (snapshot()?.feed||[]).filter(n=>!caseId||n.caseId===caseId);
