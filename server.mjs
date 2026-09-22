@@ -23,7 +23,7 @@ export function validateConfig(env) {
 export function createOffice({env=process.env,store=new Store(resolve(env.DATA_DIR||'data','office.sqlite')),integrations,worker=true}={}) {
   validateConfig(env);
   integrations ||= new Integrations(store,env);
-  if(env.ENABLE_BUILTIN_AI==='true' && integrations.status().ai.provider==='Friendly private brain' && !store.get('builtin-ai-initialized')) { const settings=store.get('settings'); store.set('settings',{...settings,useAI:true}); store.set('builtin-ai-initialized',{at:new Date().toISOString(),model:integrations.status().ai.model}); }
+  if(env.ENABLE_BUILTIN_AI==='true' && integrations.status().ai.provider==='Friendly private brain') { const settings=store.get('settings'); if(!settings.useAI) store.set('settings',{...settings,useAI:true}); store.set('builtin-ai-initialized',{at:new Date().toISOString(),model:integrations.status().ai.model,enabled:true}); }
   const engine=new Engine(store,integrations),streams=new Set(),attempts=new Map(),requests=new Map(),imports=new Set();
   const apprenticeship=new Apprenticeship(store,integrations,engine);
   if(env.ENABLE_LIVE_SHADOW==='true' && !store.get('live-shadow-initialized')) {
@@ -153,7 +153,8 @@ export function createOffice({env=process.env,store=new Store(resolve(env.DATA_D
           }
           if(b.useAI!==undefined) {
             if(typeof b.useAI!=='boolean') throw new OfficeError('useAI must be true or false.');
-            if(b.useAI && (!integrations.status().ai.configured || b.consent!==true)) throw new OfficeError('Configure the model and explicitly consent to sharing selected task data with the model provider.');
+            if(b.useAI && !integrations.status().ai.configured) throw new OfficeError('Configure the Friendly AI brain before enabling model-assisted work.');
+            if(b.useAI && integrations.status().ai.provider!=='Friendly private brain' && b.consent!==true) throw new OfficeError('Explicitly consent before sharing selected task data with an external model provider.');
             next.useAI=b.useAI;
           }
           if(b.paused!==undefined) next.paused=b.paused;
