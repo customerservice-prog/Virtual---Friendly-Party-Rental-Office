@@ -18,7 +18,7 @@
   root.innerHTML=`
     <div class="sim-top">
       <button id="cmd-business" class="sim-business">☰ <span>Business</span></button>
-      <div class="sim-company"><strong>Friendly Party Rental</strong><small>Syracuse HQ</small></div>
+      <div class="sim-company"><strong>Friendly Party Rental</strong><small>THE OFFICE IS RUNNING</small></div>
       <div class="sim-presence"><span id="cmd-live" class="sim-live">● CONNECTING</span><button id="cmd-needs" class="sim-needs">Needs me <b id="cmd-needs-count">0</b></button><button id="cmd-settings" class="sim-more" aria-label="Office settings">•••</button></div>
       <button id="cmd-shift" class="sim-power" aria-pressed="true"><i></i><span>24/7 ON</span></button>
     </div>
@@ -26,6 +26,7 @@
     <section class="sim-room" aria-label="Friendly Party Rental virtual office">
       <div class="sim-room-shade"></div>
       <div class="sim-sign">FRIENDLY <span>PARTY RENTAL</span></div>
+      <div id="sim-now" class="sim-now"><i></i><span>Everyone is caught up.</span></div>
 
       <div id="cmd-people" class="sim-people"></div>
 
@@ -91,10 +92,11 @@
     if(r.status==='waiting')return r.id==='phone'?'Watching phone':'Waiting';
     return 'Caught up';
   }
-  function personCard(r,caseId){
+  function personCard(r,caseId,place='desk'){
     const note=latestRoleNote(r.id,caseId),working=r.status==='working',talking=note&&caseId;
-    return `<button class="cmd-person sim-person sim-${r.id} ${working?'working':''} ${sim.selected===r.id?'selected':''}" data-cmd-person="${r.id}" style="--person:${colors[r.id]}">
-      <span class="sim-speech ${talking?'show':''}"><b>${talking?esc(short(note.body,92)):esc(short(r.activity,92))}</b></span>
+    const placeLabel=place==='huddle'?'Talking with the team':place==='owner'?'Waiting for you':place==='phone'?'On phone work':place==='inbox'?'Working customer messages':place==='website'?'Working on the website':'At desk';
+    return `<button class="cmd-person sim-person sim-${r.id} place-${place} ${working?'working':''} ${sim.selected===r.id?'selected':''}" data-cmd-person="${r.id}" style="--person:${colors[r.id]}">
+      <span class="sim-speech ${talking||working||place==='owner'?'show':''}"><small>${esc(placeLabel)}</small><b>${talking?esc(short(note.body,105)):esc(short(r.activity,105))}</b></span>
       <span class="sim-desk"><span class="sim-monitor ${working?'on':''}"><i></i><i></i><i></i></span><span class="sim-chair"></span></span>
       <span class="sim-person-avatar">${avatar(r.id)}<i class="cmd-status-light ${r.status}"></i></span>
       <span class="sim-person-name"><strong>${r.name}</strong><small>${jobs[r.id]}</small><em>${esc(humanStatus(r))}</em></span>
@@ -102,7 +104,15 @@
   }
   function renderPeople(){
     const x=snapshot(),caseId=activeCase();if(!x)return;
-    $('#cmd-people').innerHTML=x.team.map(r=>personCard(r,caseId)).join('');
+    const places=new Map((x.scene||[]).map(s=>[s.role,s.place]));
+    $('#cmd-people').innerHTML=x.team.map(r=>personCard(r,caseId,places.get(r.id)||'desk')).join('');
+    const working=x.team.filter(r=>r.status==='working');
+    const reviews=x.team.filter(r=>r.status==='review');
+    const now=$('#sim-now');
+    if(x.huddle)now.innerHTML='<i></i><span>The team is working something out together.</span>';
+    else if(working.length)now.innerHTML=`<i></i><span>${esc(working.map(r=>r.name+' · '+short(r.activity,58)).join('   •   '))}</span>`;
+    else if(reviews.length)now.innerHTML=`<i></i><span>${reviews.length} item${reviews.length===1?'':'s'} waiting for you.</span>`;
+    else now.innerHTML='<i></i><span>Everyone is caught up and watching the business.</span>';
   }
   function renderHuddle(){
     const x=snapshot();if(!x)return;
@@ -119,9 +129,9 @@
     $('#sim-huddle').hidden=!explicit;$('#sim-quiet').hidden=explicit||x.team.some(r=>r.status==='working');
     if(!explicit)return;
     const participants=new Set(h.participants||[]);
-    $('#cmd-huddle').innerHTML=x.team.filter(r=>participants.has(r.id)).map(r=>`<button data-cmd-person="${r.id}" style="--person:${colors[r.id]}">${avatar(r.id)}<span>${r.name}</span></button>`).join('');
+    $('#cmd-huddle').innerHTML=x.team.filter(r=>participants.has(r.id)).map(r=>`<span class="sim-huddle-name" style="--person:${colors[r.id]}">${r.name}</span>`).join('');
     $('#cmd-board-title').textContent=short(h.title||x.team.find(r=>r.status==='working')?.activity||'Working something out together',90);
-    $('#cmd-board-stream').innerHTML=messages.slice(0,6).reverse().map(n=>`<button data-ap-case="${n.caseId}"><b>${esc(names[n.author]||n.author)}</b><span>→ ${esc(names[n.recipient]||n.recipient)}</span><p>${esc(short(n.body,190))}</p></button>`).join('');
+    $('#cmd-board-stream').innerHTML=messages.slice(0,3).reverse().map(n=>`<button data-ap-case="${n.caseId}"><b>${esc(names[n.author]||n.author)}</b><span>→ ${esc(names[n.recipient]||n.recipient)}</span><p>${esc(short(n.body,190))}</p></button>`).join('');
   }
   function renderAttention(){
     const items=snapshot()?.attention||[];$('#cmd-needs-count').textContent=String(items.length);$('#cmd-needs').classList.toggle('active',items.length>0);
