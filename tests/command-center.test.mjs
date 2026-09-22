@@ -20,6 +20,21 @@ test('private Friendly brain answers casual owner chat naturally with one model 
   assert.equal(d.notes.filter(n=>n.kind==='contribution').length,0);assert(!d.notes.some(n=>/CHECKLIST RESPONSE|OWNER CHECKS/.test(n.body)));
   assert.equal(calls[0].body.messages.at(-1).role,'user');assert.match(calls[0].body.messages.at(-1).content,/hi/);
 });
+test('new owner chats receive bounded recent conversation memory and approved procedures',async t=>{
+  const originalFetch=globalThis.fetch,calls=[];
+  globalThis.fetch=async(url,options)=>{calls.push(JSON.parse(options.body));return new Response(JSON.stringify({message:{content:calls.length===1?'Hey Bryan — I remember this conversation.':'We were just talking about the office. I also have the approved delivery procedure in context.'},prompt_eval_count:10,eval_count:12}),{status:200,headers:{'content-type':'application/json'}});};
+  t.after(()=>{globalThis.fetch=originalFetch;});
+  const f=setup(t,{shadow:true,extra:{AI_BRAIN_URL:'http://reasoning.railway.internal:11434',AI_BRAIN_MODEL:'fixture-3b',AI_CHAT_URL:'http://chat.railway.internal:11434',AI_CHAT_MODEL:'fixture-3b'}});
+  f.s.set('settings',{mode:'shadow',paused:false,useAI:true});
+  const rule=f.s.proposeRule('Delivery timing','Do not promise an exact delivery time unless it is recorded in the authoritative schedule.');f.s.approveRule(rule);
+  const first=f.c.submit(input('hi'));await done(f.a);
+  const second=f.c.submit(input('what did we just talk about?'));await done(f.a);
+  assert.equal(calls.length,2);
+  const secondCall=calls[1],system=secondCall.messages.find(m=>m.role==='system')?.content||'',joined=secondCall.messages.map(m=>m.content).join('\n');
+  assert.match(system,/Delivery timing/);assert.match(system,/Do not promise an exact delivery time/);
+  assert.match(joined,/Earlier office conversation/);assert.match(joined,/hi/i);
+  assert(secondCall.messages.length<=15);
+});
 test('natural mailbox question routes to Avery, reads the authorized mailbox, and answers without a full-team huddle',async t=>{
   const originalFetch=globalThis.fetch,modelCalls=[];
   globalThis.fetch=async(url,options)=>{modelCalls.push({url:String(url),body:JSON.parse(options.body)});return new Response(JSON.stringify({message:{content:'Yes — there is one new customer email asking about delivery timing. I can help you handle it.'},prompt_eval_count:24,eval_count:18}),{status:200,headers:{'content-type':'application/json'}});};
