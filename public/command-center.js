@@ -223,6 +223,7 @@
   document.addEventListener('click',safe(async e=>{
     const b=e.target.closest('button');if(!b)return;
     if(b.dataset.hqRoute&&$('#cmd-business-dialog')?.open)$('#cmd-business-dialog').close();
+    if(b.dataset.hqRoute==='overview'&&state?.settings?.mode==='shadow'){openTeam();return;}
     if(b.dataset.cmdOpen){openTeam();return;}
     if(b.dataset.cmdNeeds){openTeam();$('#cmd-attention-dialog').showModal();return;}
     if(b.dataset.cmdPerson){openTeam(b.dataset.cmdPerson);return;}
