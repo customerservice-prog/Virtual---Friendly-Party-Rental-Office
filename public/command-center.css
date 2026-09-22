@@ -3,15 +3,15 @@
 .living-office button,.living-office textarea{font:inherit}.living-office button{cursor:pointer}
 #command-preview{display:none!important}
 
-.sim-top{position:relative;z-index:40;height:56px;display:flex;align-items:center;gap:10px;padding:8px 12px;background:#11181ddd;border-bottom:1px solid #d5b77b22;backdrop-filter:blur(12px)}
-.sim-business,.sim-needs,.sim-more,.sim-power{height:38px;border:1px solid #ffffff13;border-radius:9px;background:#202a30;color:#d9d1c3}
+.sim-top{position:absolute;z-index:40;left:12px;right:12px;top:10px;height:auto;display:flex;align-items:center;gap:7px;padding:0;pointer-events:none}
+.sim-business,.sim-needs,.sim-more,.sim-power{height:36px;border:1px solid #ffffff16;border-radius:10px;background:#11191ee8;color:#d9d1c3;box-shadow:0 6px 18px #0005;backdrop-filter:blur(10px);pointer-events:auto}
 .sim-business{padding:0 12px;font-size:10px}.sim-business span{margin-left:5px}
-.sim-company{display:flex;flex-direction:column;min-width:0;flex:1}.sim-company strong{font-size:13px;letter-spacing:.2px;color:#efe4d1}.sim-company small{font-size:8px;letter-spacing:1.2px;color:#8e9b98}
-.sim-presence{display:flex;align-items:center;gap:7px}.sim-live{font:700 8px/1 Arial,sans-serif;letter-spacing:1px;color:#78c692}.sim-live.stale{color:#d99a7d}.sim-needs{padding:0 10px;font-size:9px}.sim-needs b{display:inline-grid;place-items:center;min-width:19px;height:19px;margin-left:5px;border-radius:999px;background:#ffffff0b;font-size:8px}.sim-needs.active{border-color:#cb72574d;color:#f0b39d}.sim-needs.active b{background:#b85f4c;color:#fff}.sim-more{width:38px;font-size:14px}.sim-power{display:flex;align-items:center;gap:7px;padding:0 10px;font-size:8px;letter-spacing:.6px}.sim-power i{width:8px;height:8px;border-radius:50%;background:#74c48b;box-shadow:0 0 9px #74c48b}.sim-power.off i{background:#777;box-shadow:none}
+.sim-company{display:none}
+.sim-presence{display:flex;align-items:center;gap:6px;margin-left:auto;pointer-events:none}.sim-presence>*{pointer-events:auto}.sim-live{font:700 8px/1 Arial,sans-serif;letter-spacing:1px;color:#78c692}.sim-live.stale{color:#d99a7d}.sim-needs{padding:0 10px;font-size:9px}.sim-needs b{display:inline-grid;place-items:center;min-width:19px;height:19px;margin-left:5px;border-radius:999px;background:#ffffff0b;font-size:8px}.sim-needs.active{border-color:#cb72574d;color:#f0b39d}.sim-needs.active b{background:#b85f4c;color:#fff}.sim-more{width:38px;font-size:14px}.sim-power{display:flex;align-items:center;gap:7px;padding:0 10px;font-size:8px;letter-spacing:.6px}.sim-power i{width:8px;height:8px;border-radius:50%;background:#74c48b;box-shadow:0 0 9px #74c48b}.sim-power.off i{background:#777;box-shadow:none}
 
-.sim-room{position:relative;min-height:calc(100dvh - 56px);overflow:hidden;background:url('/showroom.avif') center 48%/cover no-repeat #171c1f}
+.sim-room{position:relative;min-height:100dvh;overflow:hidden;background:url('/showroom.avif') center 48%/cover no-repeat #171c1f}
 .sim-room-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#07101496 0,#09121732 30%,#090f136e 78%,#080d10e6 100%),radial-gradient(circle at 50% 42%,transparent 0 28%,#07101436 72%,#060b0ea3 100%)}
-.sim-sign{position:absolute;z-index:2;left:50%;top:18px;transform:translateX(-50%);padding:6px 15px;border:1px solid #dabd7a25;border-radius:999px;background:#10171ccf;color:#dfc491;font:700 10px/1.2 Arial,sans-serif;letter-spacing:2px;box-shadow:0 5px 20px #0004}.sim-sign span{color:#9aa8a4;font-weight:500}
+.sim-sign{position:absolute;z-index:2;left:50%;top:16px;transform:translateX(-50%);padding:6px 15px;border:1px solid #dabd7a25;border-radius:999px;background:#10171ccf;color:#dfc491;font:700 10px/1.2 Arial,sans-serif;letter-spacing:2px;box-shadow:0 5px 20px #0004}.sim-sign span{color:#9aa8a4;font-weight:500}
 
 .sim-people{position:absolute;inset:0;z-index:10;pointer-events:none}
 .sim-person{position:absolute;width:176px;min-height:128px;border:0;background:transparent;color:var(--person);text-align:center;pointer-events:auto;transition:transform .18s ease,filter .18s ease}
@@ -25,13 +25,13 @@
 .sim-person.selected .sim-person-name{border-color:color-mix(in srgb,var(--person) 45%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--person) 12%,transparent),0 7px 18px #0006}
 .sim-speech{position:absolute;z-index:7;left:50%;bottom:120px;width:215px;transform:translateX(-50%) translateY(7px);padding:9px 10px;border:1px solid #d4b77b2c;border-radius:12px;background:#11191ef3;color:#c8d1ce;box-shadow:0 10px 25px #0006;opacity:0;pointer-events:none;transition:.16s ease}.sim-speech:after{content:'';position:absolute;left:50%;bottom:-6px;width:11px;height:11px;transform:translateX(-50%) rotate(45deg);background:#11191e;border-right:1px solid #d4b77b2c;border-bottom:1px solid #d4b77b2c}.sim-speech b{display:block;font-size:9px;line-height:1.5;font-weight:500}.sim-speech.show,.sim-person.working .sim-speech,.sim-person:hover .sim-speech,.sim-person:focus-visible .sim-speech{opacity:1;transform:translateX(-50%) translateY(0)}
 
-.sim-huddle{position:absolute;z-index:12;left:50%;top:24%;width:min(520px,38vw);min-height:280px;transform:translateX(-50%);pointer-events:none}
-.sim-table{position:absolute;left:50%;top:46%;width:340px;height:150px;transform:translate(-50%,-50%);border:1px solid #8d714733;border-radius:50%;background:linear-gradient(155deg,#403528e8,#2d261de8);box-shadow:0 18px 32px #0007}
-.sim-huddle-copy{position:relative;z-index:2;margin:auto;width:min(430px,100%);padding:13px 15px 12px;border:1px solid #d3b67928;border-radius:13px;background:#0e171cf2;box-shadow:0 15px 34px #0008;pointer-events:none}.sim-huddle-head{display:flex;align-items:center;justify-content:space-between}.sim-huddle-head>span{font-size:7px;letter-spacing:1.5px;color:#d0af73}.sim-huddle-head button{border:0;background:none;color:#8d9b97;font-size:7px}.sim-huddle h2{margin:5px 0 8px;font-size:13px;color:#e9dbc4;line-height:1.3}.sim-huddle-faces{display:flex;gap:4px;margin-bottom:6px}.sim-huddle-faces button{display:flex;align-items:center;gap:4px;padding:3px 6px;border:1px solid #ffffff0a;border-radius:999px;background:#ffffff05;color:#d8cbb6}.sim-huddle-faces .sim-avatar{width:22px;height:24px}.sim-huddle-faces span{font-size:7px}
+.sim-huddle{position:absolute;z-index:17;left:50%;top:18%;width:min(500px,42vw);min-height:0;transform:translateX(-50%);pointer-events:none}
+.sim-table{position:absolute;left:50%;top:205px;width:330px;height:122px;transform:translateX(-50%);border:1px solid #8d714733;border-radius:50%;background:linear-gradient(155deg,#403528d9,#2d261de0);box-shadow:0 18px 32px #0007}
+.sim-huddle-copy{position:relative;z-index:2;margin:auto;width:min(430px,100%);padding:10px 12px;border:1px solid #d3b67920;border-radius:12px;background:#0c1418e8;box-shadow:0 12px 30px #0006;backdrop-filter:blur(9px);pointer-events:none}.sim-huddle-head{display:flex;align-items:center;justify-content:space-between}.sim-huddle-head>span{font-size:7px;letter-spacing:1.5px;color:#d0af73}.sim-huddle-head button{border:0;background:none;color:#8d9b97;font-size:7px}.sim-huddle h2{margin:5px 0 8px;font-size:13px;color:#e9dbc4;line-height:1.3}.sim-huddle-faces{display:flex;gap:4px;margin-bottom:6px}.sim-huddle-name{display:inline-flex;padding:3px 6px;border:1px solid color-mix(in srgb,var(--person) 35%,transparent);border-radius:999px;background:#ffffff04;color:#d8cbb6;font-size:7px}
 .sim-talk-stream{display:grid;gap:3px}.sim-talk-stream>button{display:grid;grid-template-columns:auto auto 1fr;gap:4px;align-items:baseline;padding:5px 4px;border:0;border-top:1px solid #ffffff08;background:transparent;text-align:left}.sim-talk-stream b,.sim-talk-stream span{font-size:7px}.sim-talk-stream b{color:#d8bd8c}.sim-talk-stream span{color:#6f8582}.sim-talk-stream p{grid-column:1/-1;margin-top:2px;font-size:8.5px;line-height:1.45;color:#bac5c1}
-.sim-quiet{position:absolute;z-index:4;left:50%;top:42%;transform:translate(-50%,-50%);padding:10px 16px;border:1px solid #ffffff0c;border-radius:999px;background:#10171cbc;text-align:center;backdrop-filter:blur(6px)}.sim-quiet span,.sim-quiet small{display:block}.sim-quiet span{font-size:10px;color:#d7ccb9}.sim-quiet small{margin-top:2px;font-size:7px;color:#82908d}
+.sim-quiet{position:absolute;z-index:4;left:50%;top:49%;transform:translate(-50%,-50%);padding:7px 11px;border:1px solid #ffffff09;border-radius:999px;background:#0c14189c;text-align:center;backdrop-filter:blur(6px)}.sim-quiet span,.sim-quiet small{display:inline}.sim-quiet span{font-size:8px;color:#c7c0b3}.sim-quiet small{margin-left:6px;font-size:7px;color:#72817e}
 
-.sim-owner-desk{position:absolute;z-index:25;left:50%;bottom:13px;width:min(760px,74%);transform:translateX(-50%);padding:9px 10px 10px;border:1px solid #d2b47931;border-radius:15px;background:#121a1ff4;box-shadow:0 16px 38px #0009;backdrop-filter:blur(14px)}
+.sim-owner-desk{position:absolute;z-index:25;left:50%;bottom:12px;width:min(760px,74%);transform:translateX(-50%);padding:8px 9px 9px;border:1px solid #d2b47925;border-radius:16px;background:#0e161bdc;box-shadow:0 14px 34px #0008;backdrop-filter:blur(16px)}
 .sim-owner-top{display:flex;align-items:center;gap:7px;padding:0 2px 6px}.sim-owner-avatar{display:grid;place-items:center;width:28px;height:28px;border:1px solid #d2b47934;border-radius:8px;background:#d2b47912;color:#dfc28c;font-size:8px}.sim-owner-top strong{font-size:9px;color:#ded2c0}.sim-owner-top #cmd-submit-state{margin-left:auto;font-size:7px;color:#b9a47f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sim-recipient-row{display:flex;gap:4px;margin-bottom:6px;overflow:auto;scrollbar-width:none}.sim-recipient-row::-webkit-scrollbar{display:none}.sim-recipient-row button{flex:none;padding:5px 8px;border:1px solid #ffffff0c;border-radius:999px;background:#ffffff04;color:#8f9b98;font-size:7px}.sim-recipient-row button.selected{border-color:#d4b67c3b;background:#d4b67c12;color:#e2c997}
 .sim-compose{display:flex;align-items:flex-end;gap:6px}.sim-compose textarea{flex:1;min-height:46px;max-height:110px;padding:11px 12px;border:1px solid #d0b17425;border-radius:10px;background:#0b1216;color:#f0e9de;font-size:12px;line-height:1.4;resize:vertical;outline:none}.sim-compose textarea:focus{border-color:#d1b47755}.sim-compose button{height:46px;border:0;border-radius:9px}.sim-compose #cmd-mic{width:46px;background:#263136;color:#d6ccc0}.sim-compose #cmd-send{min-width:74px;padding:0 15px;background:#c29a60;color:#16120d;font-weight:700}.sim-owner-desk #cmd-voice-state{margin-top:3px;font-size:7px;color:#8c9996}
@@ -55,9 +55,9 @@ body.command-focus .sim-top{display:none}.command-focus .sim-room{min-height:100
 }
 @media(max-width:820px){
   .sim-top{height:52px;padding:7px 8px}.sim-company small{display:none}.sim-business span{display:none}.sim-power span{font-size:0}.sim-power span:after{content:'ON';font-size:8px}.sim-needs{font-size:8px}
-  .sim-room{min-height:calc(100dvh - 52px);background-position:center top}.sim-sign{top:10px}
+  .sim-room{min-height:100dvh;background-position:center top}.sim-sign{top:12px}.sim-now{top:54px;max-width:80vw}
   .sim-person{width:calc(50% - 18px);min-height:116px}.sim-office{left:10px;top:22%}.sim-tech{right:10px;top:22%}.sim-email{left:10px;bottom:31%}.sim-phone{right:10px;bottom:31%}.sim-desk{width:125px;height:50px}.sim-monitor{width:58px;height:37px}.sim-person-avatar{width:62px;height:70px;bottom:23px}.sim-avatar{width:59px;height:64px}.sim-person-name{width:145px;bottom:-46px}.sim-speech{display:none}
-  .sim-huddle{top:43%;width:calc(100% - 28px);min-height:0}.sim-table{display:none}.sim-huddle-copy{width:100%;padding:10px 11px}.sim-huddle-faces{display:none}.sim-talk-stream>button:nth-child(n+4){display:none}
+  .sim-huddle{top:38%;width:calc(100% - 28px);min-height:0}.sim-table{display:none}.sim-huddle-copy{width:100%;padding:10px 11px}.sim-huddle-faces{display:none}.sim-talk-stream>button:nth-child(n+4){display:none}
   .sim-quiet{top:48%}
   .sim-owner-desk{left:8px;right:8px;bottom:8px;width:auto;transform:none;padding:8px}.sim-recipient-row{margin-bottom:5px}.sim-compose textarea{font-size:16px!important;min-height:46px}.sim-owner-top #cmd-submit-state{max-width:55%}
   .sim-conversation{left:8px;right:8px;bottom:142px;width:auto;transform:none;max-height:330px}.sim-chat-log{max-height:235px}
@@ -66,7 +66,7 @@ body.command-focus .sim-top{display:none}.command-focus .sim-room{min-height:100
   .sim-top{gap:5px}.sim-company strong{font-size:10px}.sim-live{font-size:7px}.sim-needs{padding:0 7px}.sim-needs b{display:none}.sim-more{width:34px}.sim-business{width:34px;padding:0}.sim-power{padding:0 7px}
   .sim-room{min-height:930px}.sim-sign{font-size:8px}
   .sim-person{width:calc(50% - 10px)}.sim-office{left:5px;top:19%}.sim-tech{right:5px;top:19%}.sim-email{left:5px;bottom:35%}.sim-phone{right:5px;bottom:35%}.sim-desk{width:112px}.sim-person-name{width:132px}.sim-person-name small{display:none}.sim-person-name em{font-size:7px}
-  .sim-huddle{top:43%;width:calc(100% - 12px)}.sim-huddle h2{font-size:11px}.sim-talk-stream p{font-size:8px}
+  .sim-huddle{top:38%;width:calc(100% - 12px)}.sim-huddle h2{font-size:11px}.sim-talk-stream p{font-size:8px}
   .sim-owner-top strong{display:none}.sim-owner-avatar{width:25px;height:25px}.sim-recipient-row button{padding:5px 7px}.sim-compose #cmd-mic{display:none}.sim-compose #cmd-send{min-width:62px}.sim-owner-top #cmd-submit-state{max-width:72%;font-size:6.5px}
   .sim-conversation{bottom:135px;max-height:320px}.sim-chat-log{max-height:225px}.sim-business-grid{grid-template-columns:1fr}
 }
@@ -74,3 +74,29 @@ body.command-focus .sim-top{display:none}.command-focus .sim-room{min-height:100
 
 .sim-huddle-head button,.sim-huddle-faces button{pointer-events:auto}
 .sim-talk-stream>button{pointer-events:none}
+
+.sim-now{position:absolute;z-index:16;left:50%;top:58px;transform:translateX(-50%);display:flex;align-items:center;gap:7px;max-width:min(760px,72vw);padding:7px 11px;border:1px solid #ffffff0c;border-radius:999px;background:#0c1418bb;box-shadow:0 6px 18px #0004;backdrop-filter:blur(8px);color:#aebbb7;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sim-now i{width:7px;height:7px;flex:none;border-radius:50%;background:#75bf89;box-shadow:0 0 10px #75bf8977}.sim-now span{overflow:hidden;text-overflow:ellipsis}
+
+.sim-person.place-huddle{z-index:18;top:36%!important;bottom:auto!important;transition:left .45s ease,right .45s ease,top .45s ease,bottom .45s ease,transform .25s ease}
+.sim-person.place-huddle .sim-desk{opacity:.18;transform:translateX(-50%) scale(.82)}
+.sim-person.place-huddle .sim-person-name{bottom:-39px;background:#0c1418e8}
+.sim-office.place-huddle{left:31%!important}.sim-email.place-huddle{left:40%!important}.sim-phone.place-huddle{right:40%!important;left:auto!important}.sim-tech.place-huddle{right:31%!important;left:auto!important}
+.sim-person.place-owner{z-index:20;top:auto!important;bottom:185px!important}
+.sim-office.place-owner,.sim-email.place-owner{left:20%!important}.sim-phone.place-owner,.sim-tech.place-owner{right:20%!important;left:auto!important}
+.sim-person.place-owner .sim-speech{border-color:#d6a45f66;box-shadow:0 0 24px #d6a45f22}
+.sim-person.place-inbox .sim-monitor,.sim-person.place-phone .sim-monitor,.sim-person.place-website .sim-monitor{box-shadow:0 0 0 1px #000,0 0 24px color-mix(in srgb,var(--person) 45%,transparent)}
+.sim-speech small{display:block;margin-bottom:3px;font-size:6px;letter-spacing:.6px;text-transform:uppercase;color:#8d9c98}
+
+@media(max-width:820px){
+  .sim-person.place-huddle{top:53%!important}
+  .sim-office.place-huddle{left:6%!important}.sim-email.place-huddle{left:28%!important}.sim-phone.place-huddle{right:28%!important}.sim-tech.place-huddle{right:6%!important}
+  .sim-person.place-huddle .sim-desk,.sim-person.place-huddle .sim-person-name{display:none}
+  .sim-person.place-owner{bottom:195px!important}.sim-office.place-owner,.sim-email.place-owner{left:8%!important}.sim-phone.place-owner,.sim-tech.place-owner{right:8%!important}
+}
+@media(max-width:430px){
+  .sim-now{top:51px;max-width:74vw;font-size:7px}
+  .sim-person.place-huddle{top:50%!important;width:23%}
+  .sim-office.place-huddle{left:2%!important}.sim-email.place-huddle{left:26%!important}.sim-phone.place-huddle{right:26%!important}.sim-tech.place-huddle{right:2%!important}
+  .sim-person.place-huddle .sim-person-avatar{width:48px;height:55px}.sim-person.place-huddle .sim-avatar{width:46px;height:50px}
+}
