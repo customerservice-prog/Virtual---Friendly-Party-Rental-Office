@@ -106,7 +106,16 @@
   }
   function renderHuddle(){
     const x=snapshot();if(!x)return;
-    const h=x.huddle,messages=h?.messages||[],explicit=!!h&&messages.length>=2;
+    let h=x.huddle;
+    if(!h){
+      const collab=(x.feed||[]).filter(n=>['plan','question','contribution','finding'].includes(n.kind));
+      const caseId=collab[0]?.caseId,messages=caseId?collab.filter(n=>n.caseId===caseId):[];
+      if(messages.length>=2){
+        const participants=[...new Set(messages.flatMap(n=>[n.author,n.recipient]).filter(id=>colors[id]))];
+        h={caseId,title:messages[0]?.title||'Team huddle',participants,messages};
+      }
+    }
+    const messages=h?.messages||[],explicit=messages.length>=2;
     $('#sim-huddle').hidden=!explicit;$('#sim-quiet').hidden=explicit||x.team.some(r=>r.status==='working');
     if(!explicit)return;
     const participants=new Set(h.participants||[]);
