@@ -72,7 +72,13 @@ body.command-focus .vo-topbar{position:absolute;z-index:20;left:12px;right:12px;
   #cmd-duty-list{grid-template-columns:1fr}
 }
 @media(max-width:420px){
-  .vo-room{min-height:1050px}.vo-wall{min-height:300px}.vo-huddle button b{font-size:7px}.vo-office,.vo-email,.vo-phone,.vo-tech{width:calc(50% - 10px)}.vo-office{left:6px}.vo-email{right:6px}.vo-phone{left:6px}.vo-tech{right:6px}.vo-person{min-height:140px}.vo-owner-row .vo-owner-badge{display:none}.vo-recipient,.vo-context{flex:1 1 46%}.vo-quick button{font-size:7px}
+  .vo-room{min-height:1000px}.vo-wall{min-height:300px}.vo-huddle button b{font-size:7px}
+  .vo-office,.vo-email,.vo-phone,.vo-tech{width:calc(50% - 10px)}.vo-office{left:6px}.vo-email{right:6px}.vo-phone{left:6px}.vo-tech{right:6px}.vo-person{min-height:132px}
+  .vo-owner-dock{left:6px;right:6px;bottom:6px;padding:7px 8px}
+  .vo-owner-row{flex-wrap:nowrap;gap:5px}.vo-owner-row .vo-owner-badge{display:none}.vo-recipient{flex:1}.vo-recipient span{display:none}.vo-recipient select{min-height:30px}.vo-context{display:none}
+  .vo-compose{margin-top:6px}.vo-compose textarea{min-height:42px;max-height:72px;padding:8px 9px}.vo-mic,.vo-send{height:42px}.vo-send{min-width:64px}
+  .vo-quick{display:none}.vo-owner-dock #cmd-voice-state{display:none}.vo-owner-dock>p{margin-top:3px;font-size:7px}
+  .vo-conversation{bottom:150px;max-height:390px}
 }
 @media(prefers-reduced-motion:reduce){.vo-conversation,.vo-speech,.vo-person{transition:none}}
 
