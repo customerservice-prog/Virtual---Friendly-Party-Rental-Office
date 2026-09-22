@@ -24,8 +24,9 @@ with tempfile.TemporaryDirectory(prefix='command-ui-') as tmp:
                 page.on('pageerror',lambda e:errors.append(str(e)))
                 page.goto(origin);page.locator('#password').fill(env['OWNER_PASSWORD']);page.locator('#login-form button').click();expect(page.locator('#shell')).to_be_visible()
 
-                expect(page.locator('#command-preview')).to_be_visible()
-                check('showroom preview is one compact virtual-office entry point',page.locator('#command-preview [data-cmd-open]').count()==1)
+                check('old virtual-office preview banner is hidden from the normal showroom',page.locator('#command-preview').count()==1 and not page.locator('#command-preview').is_visible())
+                expect(page.locator('#talk-to-team')).to_be_visible()
+                check('one clear Open virtual office button remains available in practice')
 
                 page.locator('#talk-to-team').click();expect(page.locator('#command-view')).to_be_visible()
                 check('virtual office uses one room instead of dashboard columns',page.locator('.vo-room').count()==1 and page.locator('.vo-wall').count()==1)
