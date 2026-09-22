@@ -1,6 +1,6 @@
 /* Friendly virtual office: the room is the interface; detailed machinery stays behind drawers. */
 {
-  const cmd={caseId:null,detail:null,threads:[],busy:false,requestId:crypto.randomUUID(),loading:false,recognition:null,receivedAt:0,generation:0,loadAgain:false};
+  const cmd={caseId:null,detail:null,threads:[],busy:false,requestId:crypto.randomUUID(),loading:false,recognition:null,receivedAt:0,generation:0,loadAgain:false,autoEntered:false};
   const root=document.createElement('section');root.id='command-view';root.className='view command-center';root.hidden=true;$('#main').append(root);
   headings.command=['FRIENDLY PARTY RENTAL','Your virtual office','Watch the team work, talk to anyone, step in only when they need you.'];
 
@@ -17,8 +17,8 @@
 
   root.innerHTML=`
     <div class="vo-topbar">
-      <button class="vo-back" data-view="office">← Showroom</button>
-      <div class="vo-brand"><span id="cmd-live" class="cmd-live">CONNECTING</span><strong>Friendly Office</strong><small id="cmd-mode"></small></div>
+      <button class="vo-business" id="cmd-business">☰ Business</button>
+      <div class="vo-brand"><span id="cmd-live" class="cmd-live">CONNECTING</span><strong>Friendly Party Rental</strong><small id="cmd-mode">Syracuse HQ</small></div>
       <div class="vo-top-actions">
         <button id="cmd-shift" class="vo-power" aria-pressed="true"><i></i><span>Office ON</span></button>
         <button id="cmd-needs" class="vo-needs">Needs me <b id="cmd-needs-count">0</b></button>
@@ -45,7 +45,7 @@
         <div class="vo-owner-row">
           <span class="vo-owner-badge">BP</span>
           <label class="vo-recipient"><span>Talk to</span><select id="cmd-to"><option value="team">Everyone</option><option value="office">Morgan</option><option value="email">Avery</option><option value="tech">Alex</option><option value="phone">Riley</option></select></label>
-          <label class="vo-context"><span>Context</span><select id="cmd-evidence"><option value="brief">What they know</option><option value="orders">Live orders</option><option value="website">Website</option></select></label>
+          <select id="cmd-evidence" class="vo-hidden-context" aria-label="Work context"><option value="brief">What they know</option><option value="orders">Live orders</option><option value="website">Website</option></select>
           <button type="button" id="cmd-new" class="vo-icon" title="New conversation" aria-label="New conversation">＋</button>
         </div>
         <div class="vo-compose">
@@ -73,6 +73,20 @@
     <dialog id="cmd-activity-dialog" class="app-dialog vo-dialog"><div class="vo-dialog-card">
       <header><div><span class="eyebrow">TEAM HISTORY</span><h2>What the office has been working through</h2></div><button class="vo-icon" data-cmd-close-activity aria-label="Close">×</button></header>
       <div id="cmd-activity-full"></div>
+    </div></dialog>
+
+    <dialog id="cmd-business-dialog" class="app-dialog vo-dialog"><div class="vo-dialog-card vo-business-card">
+      <header><div><span class="eyebrow">BUSINESS</span><h2>Open what you need</h2><p>Leave the office view only when you need the detailed business screens.</p></div><button class="vo-icon" data-cmd-close-business aria-label="Close">×</button></header>
+      <div class="vo-business-grid">
+        <button data-hq-route="orders"><b>Orders</b><span>Upcoming rentals and readiness</span></button>
+        <button data-hq-route="inventory"><b>Inventory</b><span>Equipment and stock</span></button>
+        <button data-hq-route="schedule"><b>Schedule</b><span>Events and deliveries</span></button>
+        <button data-hq-route="customers"><b>Customers</b><span>Email and customer work</span></button>
+        <button data-hq-route="finances"><b>Finances</b><span>Financial records</span></button>
+        <button data-hq-route="reports"><b>Reports</b><span>Recorded office work</span></button>
+        <button data-hq-route="team"><b>Team details</b><span>Employee settings and desks</span></button>
+        <button data-hq-route="settings"><b>Settings</b><span>Connections and permissions</span></button>
+      </div>
     </div></dialog>
 
     <dialog id="cmd-settings-dialog" class="app-dialog vo-dialog"><div class="vo-dialog-card">
@@ -159,7 +173,7 @@
     $('#cmd-wall-state').textContent=caseId?'Team conversation · click any line for details':'Watching for new work';
     const c=x.counts.cases,t=x.counts.tasks;
     $('#cmd-totals').textContent=`${(c.queued||0)+(t.queued||0)} queued · ${(c.review||0)+(t.waiting_approval||0)} need review`;
-    $('#cmd-mode').textContent=state.settings.mode==='practice'?'Training mode':'Live business data';
+    $('#cmd-mode').textContent=state.settings.mode==='practice'?'Training workspace':'Syracuse HQ';
     const on=!state.settings.paused&&x.settings.enabled;$('#cmd-shift').classList.toggle('off',!on);$('#cmd-shift').setAttribute('aria-pressed',String(on));$('#cmd-shift span').textContent=on?'Office ON':'Office OFF';
     renderAttention();renderDuties();freshness();
   }
@@ -193,12 +207,22 @@
   }
 
   talk.addEventListener('click',()=>openTeam());
-  const priorRender=render;render=function(){priorRender();renderScreen();if(view==='command')void loadChat().catch(()=>{});};
+  const priorRender=render;render=function(){
+    priorRender();
+    if(state&&!cmd.autoEntered&&view==='office'){
+      cmd.autoEntered=true;
+      requestAnimationFrame(()=>openTeam());
+      return;
+    }
+    renderScreen();
+    if(view==='command')void loadChat().catch(()=>{});
+  };
   const priorView=setView;setView=function(next){if(next!=='command'){stopVoice();document.body.classList.remove('command-focus');}priorView(next);if(next==='command'&&view==='command'){root.hidden=false;$('#records-view').hidden=true;}};
   const priorLogout=signedOut;signedOut=function(){stopVoice();window.speechSynthesis?.cancel();cmd.generation++;cmd.caseId=null;cmd.detail=null;cmd.threads=[];$('#cmd-message').value='';$('#cmd-chat-log').replaceChildren();preview.replaceChildren();root.hidden=true;priorLogout();};
 
   document.addEventListener('click',safe(async e=>{
     const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.hqRoute&&$('#cmd-business-dialog')?.open)$('#cmd-business-dialog').close();
     if(b.dataset.cmdOpen){openTeam();return;}
     if(b.dataset.cmdNeeds){openTeam();$('#cmd-attention-dialog').showModal();return;}
     if(b.dataset.cmdPerson){openTeam(b.dataset.cmdPerson);return;}
@@ -207,6 +231,8 @@
     }
   }));
 
+  $('#cmd-business').addEventListener('click',()=>$('#cmd-business-dialog').showModal());
+  $('[data-cmd-close-business]').addEventListener('click',()=>$('#cmd-business-dialog').close());
   $('#cmd-needs').addEventListener('click',()=>$('#cmd-attention-dialog').showModal());
   $('[data-cmd-close-needs]').addEventListener('click',()=>$('#cmd-attention-dialog').close());
   $('#cmd-board-all').addEventListener('click',()=>{$('#cmd-activity-full').innerHTML=`<div class="cmd-board-stream full">${boardRows(true)}</div>`;$('#cmd-activity-dialog').showModal();});
