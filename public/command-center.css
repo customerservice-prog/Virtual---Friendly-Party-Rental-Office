@@ -90,3 +90,7 @@ body[data-hq-view="command"] #connection-error{display:none!important}
   .vo-business-grid{grid-template-columns:1fr}
   .vo-business{font-size:9px;padding:7px 9px}
 }
+
+/* The old scenic overview is now a quiet fallback, not the primary control surface. */
+body[data-hq-view="office"] .command-preview,
+body[data-hq-view="office"] .ap-nav{display:none!important}
