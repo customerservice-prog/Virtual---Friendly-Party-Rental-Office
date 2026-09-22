@@ -110,7 +110,7 @@ with tempfile.TemporaryDirectory(prefix='command-ui-') as tmp:
                 check('clicking Riley addresses Riley',page.locator('#cmd-to').input_value()=='phone')
                 check('employee click opens direct conversation drawer',page.locator('#cmd-conversation').evaluate("e=>e.classList.contains('open')"))
 
-                page.locator('#logout').click();expect(page.locator('#login')).to_be_visible()
+                page.locator('#cmd-settings').click();page.locator('#cmd-signout').click();expect(page.locator('#login')).to_be_visible()
                 check('sign-out clears private owner conversation',page.locator('#cmd-chat-log').inner_text()=='')
                 check('private command API denies signed-out request',ctx.request.get(origin+'/api/apprentice/command').status==401)
                 check('no JavaScript errors',not errors)
