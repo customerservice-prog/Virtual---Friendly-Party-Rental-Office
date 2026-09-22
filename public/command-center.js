@@ -186,8 +186,10 @@
     if(!cmd.detail){log.innerHTML='<div class="cmd-chat-empty"><h3>No conversation selected.</h3><p>Click an employee or send an instruction.</p></div>';$('#cmd-open-case').disabled=true;return;}
     const notes=cmd.detail.notes.filter(n=>n.author==='owner'||n.recipient==='owner'||n.kind==='summary'||n.kind==='sent');
     $('#cmd-conversation-title').textContent=cmd.detail.title||'Talk to the office';
+    const active=snapshot()?.team?.find(r=>r.status==='working'&&r.caseId===cmd.detail.id);
+    const pendingText=state.settings.paused?'Office is off. Turn it on to continue.':active?`${active.name} is ${String(active.activity||'working on your message').replace(/…$/,'').replace(/^./,x=>x.toLowerCase())}…`:cmd.detail.status==='working'?'Someone on the team is working on your message…':'Picking this up now…';
     log.innerHTML=notes.map(n=>`<article class="cmd-bubble ${n.author==='owner'?'owner':'employee'}"><header><b>${esc(names[n.author]||n.author)}${n.author!=='owner'?' → Bryan':''}</b><time>${when(n.created)}</time></header><p>${esc(n.body)}</p></article>`).join('')+
-      (['queued','working'].includes(cmd.detail.status)?`<div class="cmd-pending">${state.settings.paused?'Office is off. Turn it on to start this assignment.':cmd.detail.status==='working'?'They are working on it now. Watch the wall board.':'Waiting for an employee to pick it up.'}</div>`:cmd.detail.reason?`<div class="cmd-pending">${esc(cmd.detail.reason)}</div>`:'');
+      (['queued','working'].includes(cmd.detail.status)?`<div class="cmd-pending thinking"><i></i><i></i><i></i><span>${esc(pendingText)}</span></div>`:cmd.detail.reason?`<div class="cmd-pending">${esc(cmd.detail.reason)}</div>`:'');
     log.scrollTop=log.scrollHeight;$('#cmd-open-case').disabled=false;
   }
 
@@ -253,7 +255,9 @@
     e.preventDefault();if(cmd.busy)return;const text=$('#cmd-message').value.trim();if(!text)return;stopVoice();cmd.busy=true;freshness();$('#cmd-submit-state').textContent='Giving this to the team…';
     try{
       const r=await post('/api/apprentice/command/message',{message:text,recipient:$('#cmd-to').value,action:$('#cmd-evidence').value,requestId:cmd.requestId,...(cmd.caseId?{caseId:cmd.caseId,revision:cmd.detail?.revision}:{})});
-      cmd.caseId=r.caseId;cmd.detail=null;cmd.requestId=crypto.randomUUID();$('#cmd-message').value='';$('#cmd-submit-state').textContent=r.paused?'Saved. Turn the office on to start.':'They have it. Watch the wall board.';showConversation(true);await loadChat();
+      cmd.caseId=r.caseId;cmd.detail=null;cmd.requestId=crypto.randomUUID();$('#cmd-message').value='';
+      const person=names[r.lead]||'The team',verb=r.action==='email'?'checking the inbox':r.action==='phone'?'checking phone activity':r.action==='website'?'checking the website':r.action==='orders'?'checking live orders':'thinking';
+      $('#cmd-submit-state').textContent=r.paused?'Saved. Turn the office on to start.':`${person} is ${verb}…`;showConversation(true);await loadChat();
     }catch(err){$('#cmd-submit-state').textContent=err.message;throw err;}finally{cmd.busy=false;freshness();}
   }));
 
