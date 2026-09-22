@@ -235,11 +235,14 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
       try{
         if(process.env.AI_BRAIN_URL&&process.env.AI_BRAIN_MODEL){
           const r=await fetch(new URL('/api/tags',process.env.AI_BRAIN_URL),{signal:AbortSignal.timeout(30000)});
-          const d=await r.json().catch(()=>({}));result.brain=r.ok&&Array.isArray(d.models);if(result.brain)app.store.set('verified:ai',new Date().toISOString());
+          const d=await r.json().catch(()=>({})),names=(d.models||[]).flatMap(m=>[m.name,m.model]).filter(Boolean);
+          result.brain=r.ok&&names.some(n=>String(n)===process.env.AI_BRAIN_MODEL||String(n).startsWith(process.env.AI_BRAIN_MODEL+':'));
+          if(result.brain)app.store.set('verified:ai',new Date().toISOString());
         }
         if(process.env.AI_CHAT_URL&&process.env.AI_CHAT_MODEL){
           const r=await fetch(new URL('/api/tags',process.env.AI_CHAT_URL),{signal:AbortSignal.timeout(30000)});
-          result.chatBrain=r.ok;
+          const d=await r.json().catch(()=>({})),names=(d.models||[]).flatMap(m=>[m.name,m.model]).filter(Boolean);
+          result.chatBrain=r.ok&&names.some(n=>String(n)===process.env.AI_CHAT_MODEL||String(n).startsWith(process.env.AI_CHAT_MODEL+':'));
         }
       }catch{}
       try{
