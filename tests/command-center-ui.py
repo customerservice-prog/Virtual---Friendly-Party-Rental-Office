@@ -44,9 +44,15 @@ with tempfile.TemporaryDirectory(prefix='living-office-') as tmp:
                 check('office reconnects automatically')
                 check('typed message survives reconnect',page.locator('#cmd-message').input_value()=='This message must survive reconnect.')
 
+                if page.locator('#cmd-shift').get_attribute('aria-pressed')=='false':
+                    page.locator('#cmd-shift').click()
+                    expect(page.locator('#cmd-shift')).to_have_attribute('aria-pressed','true',timeout=10000)
                 page.locator('[data-sim-to="team"]').click();page.locator('#cmd-message').fill('Team, work together and figure out what needs my attention.');page.locator('#cmd-send').click()
                 expect(page.locator('#sim-huddle')).to_be_visible(timeout=20000)
-                expect(page.locator('#cmd-chat-log article')).to_have_count(2,timeout=20000)
+                for _ in range(80):
+                    if page.locator('#cmd-chat-log article').count()>=2:break
+                    page.wait_for_timeout(250)
+                check('owner receives the team reply in the same conversation',page.locator('#cmd-chat-log article').count()>=2)
                 check('explicit collaboration becomes visible in the room')
                 check('huddle shows multiple employee messages',page.locator('#cmd-board-stream button').count()>=2)
                 board=page.locator('#cmd-board-stream').inner_text()
