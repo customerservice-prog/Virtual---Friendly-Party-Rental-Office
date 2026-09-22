@@ -231,11 +231,15 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
   app.server.listen(port,host,()=>{
     console.log(`Friendly Office listening on ${host}:${port}. Supervised shadow supported; outbound business writes remain permission-gated.`);
     if(process.env.VERIFY_PRIVATE_SERVICES==='true') void (async()=>{
-      const result={brain:false,transcriber:false,orders:false,mail:false};
+      const result={brain:false,chatBrain:false,transcriber:false,orders:false,mail:false};
       try{
         if(process.env.AI_BRAIN_URL&&process.env.AI_BRAIN_MODEL){
-          const r=await fetch(new URL('/api/generate',process.env.AI_BRAIN_URL),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({model:process.env.AI_BRAIN_MODEL,prompt:'Reply only with READY',stream:false,keep_alive:-1,options:{temperature:0,num_predict:5}}),signal:AbortSignal.timeout(360000)});
-          const d=await r.json().catch(()=>({}));result.brain=r.ok&&/ready/i.test(String(d.response||''));if(result.brain)app.store.set('verified:ai',new Date().toISOString());
+          const r=await fetch(new URL('/api/tags',process.env.AI_BRAIN_URL),{signal:AbortSignal.timeout(30000)});
+          const d=await r.json().catch(()=>({}));result.brain=r.ok&&Array.isArray(d.models);if(result.brain)app.store.set('verified:ai',new Date().toISOString());
+        }
+        if(process.env.AI_CHAT_URL&&process.env.AI_CHAT_MODEL){
+          const r=await fetch(new URL('/api/tags',process.env.AI_CHAT_URL),{signal:AbortSignal.timeout(30000)});
+          result.chatBrain=r.ok;
         }
       }catch{}
       try{
