@@ -9,6 +9,17 @@ function setup(t,{shadow=false,request,extra={}}={}){const store=new Store(),e={
 const input=(message='Team, what needs my attention?',recipient='team')=>({message,recipient,requestId:randomUUID()});
 async function done(a){await a.worker.active?.promise;}
 test('owner can address whole team and get an honest saved brief without a model',async t=>{const f=setup(t),r=f.c.submit(input());await done(f.a);const d=f.d.detail(r.caseId);assert.equal(d.status,'review');assert.match(d.draft,/OFFICE BRIEF/);assert.match(d.draft,/not configured/);assert.equal(d.notes.filter(n=>n.kind==='contribution').length,3);assert.equal(f.c.threads().length,1);assert.equal(f.c.snapshot().team.length,4);});
+test('private Friendly brain answers casual owner chat naturally with one model call',async t=>{
+  const originalFetch=globalThis.fetch,calls=[];
+  globalThis.fetch=async(url,options)=>{calls.push({url:String(url),body:JSON.parse(options.body)});return new Response(JSON.stringify({message:{content:'Hey Bryan — I’m here. The team is online. What do you want to work on?'},prompt_eval_count:12,eval_count:18}),{status:200,headers:{'content-type':'application/json'}});};
+  t.after(()=>{globalThis.fetch=originalFetch;});
+  const f=setup(t,{shadow:true,extra:{AI_BRAIN_URL:'http://fixture.railway.internal:11434',AI_BRAIN_MODEL:'fixture-14b',ENABLE_BUILTIN_AI:'true'}});
+  f.s.set('settings',{mode:'shadow',paused:false,useAI:true});
+  const r=f.c.submit(input('hi'));await done(f.a);const d=f.d.detail(r.caseId);
+  assert.equal(d.status,'open');assert.equal(calls.length,1);assert.match(d.notes.find(n=>n.kind==='summary').body,/Hey Bryan/);
+  assert.equal(d.notes.filter(n=>n.kind==='contribution').length,0);assert(!d.notes.some(n=>/CHECKLIST RESPONSE|OWNER CHECKS/.test(n.body)));
+  assert.equal(calls[0].body.messages.at(-1).role,'user');assert.match(calls[0].body.messages.at(-1).content,/hi/);
+});
 test('specific employee receives owner instruction; same conversation supports follow-up',async t=>{const f=setup(t),r=f.c.submit(input('Avery, help me with a reply.','email'));await done(f.a);assert.equal(f.d.row(r.caseId).lead,'email');const b={...input('Riley, what are you waiting for?','phone'),caseId:r.caseId,revision:f.d.row(r.caseId).revision};f.c.submit(b);await done(f.a);const d=f.d.detail(r.caseId);assert.equal(d.lead,'phone');assert.equal(d.sources.filter(s=>s.kind==='owner').length,2);assert.equal(d.draftHistory.length,2);});
 test('message request IDs deduplicate transmission and reject altered retries',async t=>{const f=setup(t),b=input(),first=f.c.submit(b),second=f.c.submit(b);assert.equal(second.duplicate,true);assert.equal(second.caseId,first.caseId);assert.throws(()=>f.c.submit({...b,message:'Other'}),/different message/);await done(f.a);assert.equal(f.c.threads().length,1);});
 test('owner instructions are encrypted in shadow and source HTML stays data',async t=>{const f=setup(t,{shadow:true}),r=f.c.submit(input('<b>Private owner phrase</b>'));await done(f.a);const raw=f.d.db.prepare("SELECT payload FROM ap_sources WHERE kind='owner'").get().payload;assert(raw.startsWith('enc:'));assert(!raw.includes('Private owner phrase'));assert(f.c.snapshot().feed.some(n=>n.body.includes('<b>Private owner phrase</b>')));assert(!JSON.stringify(f.c.snapshot()).includes(env.INTEGRATION_ENCRYPTION_KEY));});
