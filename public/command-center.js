@@ -91,7 +91,7 @@
 
     <dialog id="cmd-settings-dialog" class="app-dialog vo-dialog"><div class="vo-dialog-card">
       <header><div><span class="eyebrow">OFFICE SETTINGS</span><h2>Things you normally never need</h2></div><button class="vo-icon" data-cmd-close-settings aria-label="Close">×</button></header>
-      <div class="vo-settings-actions"><button class="button secondary" id="cmd-focus">Full-screen office</button></div>
+      <div class="vo-settings-actions"><button class="button secondary" id="cmd-focus">Full-screen office</button><button class="button secondary" id="cmd-signout">Sign out</button></div>
       <details class="cmd-duty-drawer">
         <summary><span><b>24/7 standing work</b><small>What each employee checks in the background</small></span><span>Show</span></summary>
         <div id="cmd-duty-list"></div>
@@ -245,6 +245,7 @@
   $('#cmd-new').addEventListener('click',()=>{cmd.caseId=null;cmd.detail=null;cmd.requestId=crypto.randomUUID();$('#cmd-threads').value='';renderChat();});
   $('#cmd-shift').addEventListener('click',safe(async()=>{const x=snapshot(),enable=state.settings.paused||!x.settings.enabled;await post('/api/apprentice/command/settings',{enabled:enable,...(enable?{resume:true}:{})});toast(enable?'Office is ON. The team will keep watching for useful work.':'Office is OFF. Everyone is paused.');}));
   $('#cmd-focus').addEventListener('click',()=>{const on=document.body.classList.toggle('command-focus');$('#cmd-settings-dialog').close();toast(on?'Full-screen office on. Press Escape to exit.':'Full-screen office off.');});
+  $('#cmd-signout').addEventListener('click',safe(async()=>{await post('/api/logout');$('#cmd-settings-dialog').close();signedOut();}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.querySelector('dialog[open]')){document.body.classList.remove('command-focus');stopVoice();}});
   $('#cmd-open-case').addEventListener('click',()=>{if(cmd.caseId){const b=document.createElement('button');b.dataset.apCase=cmd.caseId;b.hidden=true;root.append(b);b.click();b.remove();}});
 
