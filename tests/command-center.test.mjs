@@ -20,6 +20,24 @@ test('private Friendly brain answers casual owner chat naturally with one model 
   assert.equal(d.notes.filter(n=>n.kind==='contribution').length,0);assert(!d.notes.some(n=>/CHECKLIST RESPONSE|OWNER CHECKS/.test(n.body)));
   assert.equal(calls[0].body.messages.at(-1).role,'user');assert.match(calls[0].body.messages.at(-1).content,/hi/);
 });
+test('natural mailbox question routes to Avery, reads the authorized mailbox, and answers without a full-team huddle',async t=>{
+  const originalFetch=globalThis.fetch,modelCalls=[];
+  globalThis.fetch=async(url,options)=>{modelCalls.push({url:String(url),body:JSON.parse(options.body)});return new Response(JSON.stringify({message:{content:'Yes — there is one new customer email asking about delivery timing. I can help you handle it.'},prompt_eval_count:24,eval_count:18}),{status:200,headers:{'content-type':'application/json'}});};
+  t.after(()=>{globalThis.fetch=originalFetch;});
+  const f=setup(t,{shadow:true,extra:{AI_BRAIN_URL:'http://reasoning.railway.internal:11434',AI_BRAIN_MODEL:'fixture-7b',AI_CHAT_URL:'http://chat.railway.internal:11434',AI_CHAT_MODEL:'fixture-3b',MAIL_RELAY_URL:'https://mail.example.test/private',MAIL_RELAY_TOKEN:'fixture-token'},request:async(url)=>{
+    if(String(url).includes('mail.example.test'))return {status:200,data:{account:'customerservice@friendlypartyrental.com',asOf:new Date().toISOString(),messages:[{id:'m1',direction:'incoming',subject:'Delivery time',from:'customer@example.test',to:['customerservice@friendlypartyrental.com'],date:new Date().toISOString(),unread:true,message:'What time will my chairs arrive?'}]}};
+    assert.fail('Unexpected integration URL '+url);
+  }});
+  f.s.set('settings',{mode:'shadow',paused:false,useAI:true});
+  const r=f.c.submit(input('any new emails?'));await done(f.a);const d=f.d.detail(r.caseId);
+  assert.equal(d.status,'open');assert.equal(modelCalls.length,1);assert.equal(d.notes.filter(n=>n.kind==='contribution').length,0);
+  const summary=d.notes.find(n=>n.kind==='summary');assert.equal(summary.author,'email');assert.match(summary.body,/one new customer email/i);
+  assert(d.sources.some(s=>s.kind==='authorized-check'&&String(s.payload.message).includes('Delivery time')));
+});
+test('explicit work-together wording keeps the multi-employee huddle',async t=>{
+  const f=setup(t);const r=f.c.submit(input('Team, work together and figure out what needs my attention.'));await done(f.a);const d=f.d.detail(r.caseId);
+  assert.equal(d.notes.filter(n=>n.kind==='contribution').length,3);assert.equal(d.status,'review');
+});
 test('specific employee receives owner instruction; same conversation supports follow-up',async t=>{const f=setup(t),r=f.c.submit(input('Avery, help me with a reply.','email'));await done(f.a);assert.equal(f.d.row(r.caseId).lead,'email');const b={...input('Riley, what are you waiting for?','phone'),caseId:r.caseId,revision:f.d.row(r.caseId).revision};f.c.submit(b);await done(f.a);const d=f.d.detail(r.caseId);assert.equal(d.lead,'phone');assert.equal(d.sources.filter(s=>s.kind==='owner').length,2);assert.equal(d.draftHistory.length,2);});
 test('message request IDs deduplicate transmission and reject altered retries',async t=>{const f=setup(t),b=input(),first=f.c.submit(b),second=f.c.submit(b);assert.equal(second.duplicate,true);assert.equal(second.caseId,first.caseId);assert.throws(()=>f.c.submit({...b,message:'Other'}),/different message/);await done(f.a);assert.equal(f.c.threads().length,1);});
 test('owner instructions are encrypted in shadow and source HTML stays data',async t=>{const f=setup(t,{shadow:true}),r=f.c.submit(input('<b>Private owner phrase</b>'));await done(f.a);const raw=f.d.db.prepare("SELECT payload FROM ap_sources WHERE kind='owner'").get().payload;assert(raw.startsWith('enc:'));assert(!raw.includes('Private owner phrase'));assert(f.c.snapshot().feed.some(n=>n.body.includes('<b>Private owner phrase</b>')));assert(!JSON.stringify(f.c.snapshot()).includes(env.INTEGRATION_ENCRYPTION_KEY));});
