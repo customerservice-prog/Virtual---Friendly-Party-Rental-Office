@@ -49,10 +49,13 @@ test('natural mailbox question routes to Avery, reads the authorized mailbox, an
   const summary=d.notes.find(n=>n.kind==='summary');assert.equal(summary.author,'email');assert.match(summary.body,/one new customer email/i);
   assert(d.sources.some(s=>s.kind==='authorized-check'&&String(s.payload.message).includes('Delivery time')));
 });
-test('explicit work-together wording keeps the multi-employee huddle',async t=>{
-  const f=setup(t);const r=f.c.submit(input('Team, work together and figure out what needs my attention.'));await done(f.a);const d=f.d.detail(r.caseId),h=f.c.snapshot().huddle;
+test('explicit work-together wording records a multi-employee huddle and clears it from the room when finished',async t=>{
+  const f=setup(t);const r=f.c.submit(input('Team, work together and figure out what needs my attention.'));await done(f.a);const d=f.d.detail(r.caseId),snap=f.c.snapshot();
   assert.equal(d.notes.filter(n=>n.kind==='contribution').length,3);assert.equal(d.status,'review');
-  assert(h);assert.equal(h.caseId,r.caseId);assert(h.messages.length>=2);assert(h.messages.some(n=>n.kind==='question'));assert(h.messages.some(n=>n.kind==='contribution'));assert(h.participants.length>=2);
+  assert.equal(snap.huddle,null);
+  const recorded=snap.feed.filter(n=>n.caseId===r.caseId);
+  assert(recorded.some(n=>n.kind==='question'));assert(recorded.some(n=>n.kind==='contribution'));
+  assert(new Set(recorded.flatMap(n=>[n.author,n.recipient]).filter(x=>['office','email','phone','tech'].includes(x))).size>=2);
 });
 test('specific employee receives owner instruction; same conversation supports follow-up',async t=>{const f=setup(t),r=f.c.submit(input('Avery, help me with a reply.','email'));await done(f.a);assert.equal(f.d.row(r.caseId).lead,'email');const b={...input('Riley, what are you waiting for?','phone'),caseId:r.caseId,revision:f.d.row(r.caseId).revision};f.c.submit(b);await done(f.a);const d=f.d.detail(r.caseId);assert.equal(d.lead,'phone');assert.equal(d.sources.filter(s=>s.kind==='owner').length,2);assert.equal(d.draftHistory.length,2);});
 test('message request IDs deduplicate transmission and reject altered retries',async t=>{const f=setup(t),b=input(),first=f.c.submit(b),second=f.c.submit(b);assert.equal(second.duplicate,true);assert.equal(second.caseId,first.caseId);assert.throws(()=>f.c.submit({...b,message:'Other'}),/different message/);await done(f.a);assert.equal(f.c.threads().length,1);});
