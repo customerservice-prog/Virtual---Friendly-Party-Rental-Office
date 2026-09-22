@@ -209,7 +209,7 @@
   talk.addEventListener('click',()=>openTeam());
   const priorRender=render;render=function(){
     priorRender();
-    if(state&&!cmd.autoEntered&&view==='office'){
+    if(state&&!cmd.autoEntered&&view==='office'&&state.settings.mode==='shadow'){
       cmd.autoEntered=true;
       requestAnimationFrame(()=>openTeam());
       return;
