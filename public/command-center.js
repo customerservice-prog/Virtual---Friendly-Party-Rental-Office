@@ -105,16 +105,14 @@
     $('#cmd-people').innerHTML=x.team.map(r=>personCard(r,caseId)).join('');
   }
   function renderHuddle(){
-    const x=snapshot(),caseId=activeCase();if(!x)return;
-    const feed=caseId?caseFeed(caseId):[];
-    const teamTalk=feed.filter(n=>n.author!=='owner'&&n.recipient!=='owner'&&n.author!=='system');
-    const explicit=teamTalk.length>=2;
+    const x=snapshot();if(!x)return;
+    const h=x.huddle,messages=h?.messages||[],explicit=!!h&&messages.length>=2;
     $('#sim-huddle').hidden=!explicit;$('#sim-quiet').hidden=explicit||x.team.some(r=>r.status==='working');
     if(!explicit)return;
-    const participants=new Set();for(const n of teamTalk){if(colors[n.author])participants.add(n.author);if(colors[n.recipient])participants.add(n.recipient);}
+    const participants=new Set(h.participants||[]);
     $('#cmd-huddle').innerHTML=x.team.filter(r=>participants.has(r.id)).map(r=>`<button data-cmd-person="${r.id}" style="--person:${colors[r.id]}">${avatar(r.id)}<span>${r.name}</span></button>`).join('');
-    $('#cmd-board-title').textContent=short(teamTalk[0]?.title||x.team.find(r=>r.status==='working')?.activity||'Working something out together',90);
-    $('#cmd-board-stream').innerHTML=teamTalk.slice(0,5).reverse().map(n=>`<button data-ap-case="${n.caseId}"><b>${esc(names[n.author]||n.author)}</b><span>→ ${esc(names[n.recipient]||n.recipient)}</span><p>${esc(short(n.body,190))}</p></button>`).join('');
+    $('#cmd-board-title').textContent=short(h.title||x.team.find(r=>r.status==='working')?.activity||'Working something out together',90);
+    $('#cmd-board-stream').innerHTML=messages.slice(0,6).reverse().map(n=>`<button data-ap-case="${n.caseId}"><b>${esc(names[n.author]||n.author)}</b><span>→ ${esc(names[n.recipient]||n.recipient)}</span><p>${esc(short(n.body,190))}</p></button>`).join('');
   }
   function renderAttention(){
     const items=snapshot()?.attention||[];$('#cmd-needs-count').textContent=String(items.length);$('#cmd-needs').classList.toggle('active',items.length>0);
