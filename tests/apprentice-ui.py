@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix='ap-browser-') as tmp:
                 page.on('response',lambda r:print('AP_HTTP '+str(r.status)+' '+r.url,flush=True) if '/api/apprentice/' in r.url and r.status>=400 else None)
                 page.goto(origin,wait_until='domcontentloaded');page.locator('#password').fill(env['OWNER_PASSWORD']);page.locator('#login-form button').click();expect(page.locator('#shell')).to_be_visible()
                 check('original showroom remains the default',page.locator('body').get_attribute('data-scene-mode')=='showroom')
-                expect(page.locator('.ap-nav')).to_be_visible();check('apprenticeship launch controls added without replacing showroom')
+                check('advanced apprenticeship launch controls exist but stay hidden from the normal showroom',page.locator('.ap-nav').count()==1 and not page.locator('.ap-nav').is_visible())
                 page.screenshot(path=str(OUT/'apprentice-showroom-desktop.png'))
                 page.locator('.ap-nav [data-ap-route="cases"]').click();expect(page.locator('#apprentice-view')).to_be_visible()
                 expect(page.get_by_role('button',name='Pause Riley shared casework')).to_be_visible();check('four team roles have separate pause controls')
