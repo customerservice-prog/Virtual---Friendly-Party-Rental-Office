@@ -81,7 +81,7 @@ with tempfile.TemporaryDirectory(prefix='ap-browser-') as tmp:
                 page.locator('#navigation [data-hq-route="overview"]').click();expect(page.locator('#command-view')).to_be_visible()
                 page.set_viewport_size({'width':390,'height':844});page.screenshot(path=str(OUT/'apprentice-simple-office-mobile.png'),full_page=True)
                 check('live shadow returns to the simple virtual office with all four employees',page.locator('#command-view .cmd-person:visible').count()==4)
-                page.locator('#logout').click();expect(page.locator('#login')).to_be_visible();check('logout protects apprenticeship records',ctx.request.get(origin+'/api/apprentice/cases').status==401)
+                page.locator('#cmd-settings').click();page.locator('#cmd-signout').click();expect(page.locator('#login')).to_be_visible();check('logout protects apprenticeship records',ctx.request.get(origin+'/api/apprentice/cases').status==401)
                 check('no JavaScript errors',not errors)
                 (OUT/'apprentice-browser-checks.json').write_text(json.dumps({'passed':len(checks),'checks':checks,'javascriptErrors':errors,'scope':'Disposable real backend, Chromium, fictional data; no production credentials or external model calls.'},indent=2))
                 print(f'{len(checks)} apprenticeship browser checks passed',flush=True);browser.close()
